@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os, sys, pyarrow
+import seaborn as sns
+from pathlib import Path
+
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
 from diurnal_analysis import DiurnalAnalysis
@@ -11,6 +14,7 @@ from diurnal_analysis import DiurnalAnalysis
     Analyze metrics individually and plot them to a directory
 """
 
+TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 
 class AnalyzeMetrics:
 
@@ -63,7 +67,7 @@ class Disk:
         :return:
         """
 
-        # Read parquets to df
+        # Read parquets to df and get the mean of the nodes
         df_read_bytes = AnalyzeMetrics.get_df("node_disk_bytes_read", self.node_parquets).mean(axis=1)
         df_write_bytes = AnalyzeMetrics.get_df("node_disk_bytes_written", self.node_parquets).mean(axis=1)
         df_read_completed = AnalyzeMetrics.get_df("node_disk_reads_completed", self.node_parquets).mean(axis=1)
@@ -78,25 +82,25 @@ class Disk:
         df_readsize = df_read_bytes/df_read_completed
         df_writesize = df_write_bytes/df_write_completed
 
+        # Create subplots for line plots
+        fig, (ax_read, ax_write) = plt.subplots(2, 1, figsize=(8, 10), sharex=True)
+        fig.tight_layout(pad=3.0) 
+
         # Line plot for write chunk size for each disk operation
-        ax_write = df_writesize.plot.line(
-            x=df_writesize.index,
-            y=df_writesize.values,
-            rot=45,
-            color="red"
-        )
+        ax_read.plot(df_readsize, color="blue", label="read size")
+        ax_read.set_title("Read bytes per operation")
+        ax_read.set_ylabel("Bytes")
+
+        ax_write.plot(df_writesize, color="red", label="write size")
         ax_write.set_title("Written bytes per operation")
         ax_write.set_ylabel("Bytes")
 
-        # Line plot for write chunk size for each disk operation
-        ax_read = df_readsize.plot.line(
-            x=df_readsize.index,
-            y=df_readsize.values,
-            rot=45,
-            color="blue"
-        )
-        ax_read.set_title("Read bytes per operation")
-        ax_read.set_ylabel("Bytes")
+        ax_write.tick_params(axis='x', labelrotation=0, labelsize=8)
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "read_write_analysis.pdf"), dpi=100)
+        plt.show(block=False) 
+        plt.pause(0.001) # Enables the program to keep running after the plot is displayed
+
 
 
 class Cpu:
@@ -104,35 +108,48 @@ class Cpu:
     def __init__(self, node_parquets):
         self.node_parquets = node_parquets
 
-    def processes_run_block_analysis(self):
+    def nr_procs_running_blocked_analysis(self):
         """
-        plot normalized lineplot
-        :return:
+        Normalized lineplot
         """
-
-        # Read parquets and replace the -1 values with NaN so they don't effect the plots
         df_run = AnalyzeMetrics.get_df("node_procs_running", self.node_parquets).replace(-1, np.NaN)
         df_block = AnalyzeMetrics.get_df("node_procs_blocked", self.node_parquets).replace(-1, np.NaN)
 
         df_run = DiurnalAnalysis.get_diurnal_df(df_run)
         df_block = DiurnalAnalysis.get_diurnal_df(df_block)
 
-        # Get the mean of the dates
-        df_run_per_date_per_node = df_run.groupby("dt").mean()
-        df_run_per_date = df_run_per_date_per_node.mean(axis=1)
-        df_block_per_date_per_node = df_block.groupby("dt").mean()
-        df_block_per_date = df_block_per_date_per_node.mean(axis=1)
+        df_run_dt = df_run.groupby("dt").mean()
+        df_run_mean = df_run_dt.mean(axis=1) # get mean of nodes
 
-        df_run_per_date_norm = df_run_per_date / max(df_run_per_date)
-        df_block_per_date_norm = df_block_per_date / max(df_block_per_date.values)
+        df_block_dt = df_block.groupby("dt").mean()
+        df_block_mean = df_block_dt.mean(axis=1) # get mean of nodes
 
-        plt.plot(df_run_per_date_norm.index, df_run_per_date_norm.values, color="red", label="run")
-        plt.plot(df_block_per_date_norm.index, df_block_per_date_norm.values, color="blue", label="block")
-        plt.legend(loc='upper left')
-        plt.title("# Processes")
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.show()
+        df_run_mean_normalized = df_run_mean / max(df_run_mean.values)
+        df_block_mean_normalized = df_block_mean / max(df_block_mean.values)
+
+        # Create subplots for cdf and normalized plots
+        fig, (ax_line, ax_cdf) = plt.subplots(2, 1, figsize=(10, 10))
+        fig.tight_layout(pad=3.0) # Increase distance between plots
+        # fig.suptitle("CDF and Normalized Line Plot for # Processes") # Title of the figure
+
+        ax_line.plot(df_run_mean_normalized, color="blue", label="running")
+        ax_line.plot(df_block_mean_normalized, color="red", label="blocked")
+        ax_line.set_xlabel("Time")
+        ax_line.set_title("# processes")
+        ax_line.tick_params(axis='x', labelrotation=0, labelsize=8)
+        ax_line.legend(loc="upper right")
+
+        ax_cdf.hist(df_run_mean, bins=100, density=True, cumulative=True, histtype="step", color="red", label="run")
+        ax_cdf.hist(df_block_mean, bins=100, cumulative=True, density=True, histtype="step", label="block")
+        ax_cdf.set_title("CDF of # process")
+        ax_cdf.legend(loc="center")
+        ax_cdf.grid(True)
+        ax_cdf.set_xlabel("# Process")
+        ax_cdf.set_ylabel("Density")
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "procs_run_block_analysis.pdf"), dpi=100)
+        plt.show(block=False)
+        plt.pause(0.001) # This enables the program to keep running after the plot is displayed
 
     def load_diurnal_analysis(self):
         """

@@ -1,5 +1,6 @@
 import sys, os
 import pandas as pd
+from pathlib import Path
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
@@ -26,6 +27,7 @@ def main():
     node_parquets, gpu_parquets = Parser(dataset_path).parse_data()
     analyze_metric = AnalyzeMetrics(node_parquets, gpu_parquets)
 
+    print("For the type of analysis, please enter one of the following commands:\ndisk\ngpu\nmemory\ncpu")
     command = ""
     while True:
         command = str(input("> ")).strip()
@@ -38,22 +40,27 @@ def main():
             """
             Give the user the option to see which analysis (s)he wants
             """
-            analyze_metric.cpu.processes_run_block_analysis() # Testing purposes
+            print("Please wait, as we are analyzing...")
+            analyze_metric.cpu.nr_procs_running_blocked_analysis() # Testing purposes
             pass
         elif command == "gpu":
             """
             Give the user the option to see which analysis (s)he wants
             """
+            print("Please wait, as we are analyzing...")
             pass
         elif command == "disk":
             """
             Give the user the option to see which analysis (s)he wants
             """
+            print("Please wait, as we are analyzing...")
+            analyze_metric.disk.read_write_analysis()
             pass
         elif command == "memory":
             """
             Give the user the option to see which analysis (s)he wants
             """
+            print("Please wait, as we are analyzing...")
             pass
         elif command == "help":
             print("For analysis enter one of the following commands:\ngpu\ncpu\ndisk\nmemory\n")
