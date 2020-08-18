@@ -59,9 +59,6 @@ class Disk:
         """
         df = AnalyzeMetrics.get_df("node_entropy_available_bits", self.node_parquets)
 
-    # TODO: Added 2 scatters plots
-    # 1. Scatter(x=df_read_mean y=df_write_mean)
-    # 2. Scatter(x=df_write_completed, y=df_read_completed)
     def read_write_analysis(self):
         """
         Normalized line plot
@@ -85,24 +82,42 @@ class Disk:
         df_writesize = df_write_bytes/df_write_completed
 
         # Create subplots for line plots
-        fig, (ax_read, ax_write) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
-        fig.tight_layout(pad=3.0) 
+        fig, ( (ax_read, ax_write), (ax_complete, ax_bytes) ) = plt.subplots(2, 2, figsize=(8, 8))
+        fig.tight_layout(pad=5.0) 
 
         # Line plot for write chunk size for each disk operation
         ax_read.plot(df_readsize, color="blue", label="read size")
-        ax_read.set_title("Read bytes per operation")
+        ax_read.set_title("Read bytes per operation", fontsize=10)
         ax_read.set_ylabel("Bytes")
+        ax_read.tick_params(axis='x', labelrotation=45, labelsize=8)
 
         ax_write.plot(df_writesize, color="red", label="write size")
-        ax_write.set_title("Written bytes per operation")
+        ax_write.set_title("Written bytes per operation", fontsize=10)
         ax_write.set_ylabel("Bytes")
+        ax_write.tick_params(axis='x', labelrotation=45, labelsize=8)
 
-        ax_write.tick_params(axis='x', labelrotation=0, labelsize=8)
+        # Normalized scatter plot for the read and written bytes from the disk
+        ax_bytes.scatter(x=df_read_bytes.values/max(df_read_bytes.values),
+                         y=df_write_bytes.values/max(df_write_bytes.values), 
+                         color="green",
+                         s=2.5)
+        ax_bytes.set_xlabel("Bytes read")
+        ax_bytes.set_ylabel("Bytes written")
+        ax_bytes.set_title("Normalized scatter plot | # bytes read & written", fontsize=8)
+
+        # Normalized scatter plot for the completed read and write operations from the disk
+        ax_complete.scatter(x=df_read_completed.values/max(df_read_completed.values), 
+                            y=df_write_completed.values/max(df_write_completed.values), 
+                            s=2.5,
+                            color="green")
+        ax_complete.set_xlabel("Reads completed")
+        ax_complete.set_ylabel("Writes completed")
+        ax_complete.set_title("Normalized scatter plot | # completed read & write operations", fontsize=8)
+
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "read_write_analysis.pdf"), dpi=100) # save fig before showing
         plt.show(block=False) 
         plt.pause(0.001) # Enables the program to keep running after the plot is displayed
-
 
 
 class Cpu:
@@ -155,7 +170,7 @@ class Cpu:
         ax_scatter.scatter(x=df_run_mean_normalized.values, y=df_block_mean_normalized, s=3, color="blue")
         ax_scatter.set_xlabel("# running process")
         ax_scatter.set_ylabel("# blocked processes")
-        ax_scatter.set_title("Scatter plot | # processes")
+        ax_scatter.set_title("Scatter plot | # processes", fontsize=8)
         ax_scatter.set_ylim(0-.05, 1+.05)
         ax_scatter.set_xlim(0-.05, 1+.05)
 

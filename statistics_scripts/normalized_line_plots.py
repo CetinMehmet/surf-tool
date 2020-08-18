@@ -19,5 +19,6 @@ class NormalizedPlot:
         )
         ax.set_ylim(0, 1.05) # Set limit to 1.05 for the margin to be not too tight
         ax.set_title(title)
+        
 
 
