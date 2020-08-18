@@ -14,7 +14,7 @@ from diurnal_analysis import DiurnalAnalysis
     Analyze metrics individually and plot them to a directory
 """
 
-TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
+TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent # Getting the parent of the parent of the current files path
 
 class AnalyzeMetrics:
 
@@ -59,7 +59,9 @@ class Disk:
         """
         df = AnalyzeMetrics.get_df("node_entropy_available_bits", self.node_parquets)
 
-    #TODO: Fix this function
+    # TODO: Added 2 scatters plots
+    # 1. Scatter(x=df_read_mean y=df_write_mean)
+    # 2. Scatter(x=df_write_completed, y=df_read_completed)
     def read_write_analysis(self):
         """
         Normalized line plot
@@ -83,7 +85,7 @@ class Disk:
         df_writesize = df_write_bytes/df_write_completed
 
         # Create subplots for line plots
-        fig, (ax_read, ax_write) = plt.subplots(2, 1, figsize=(8, 10), sharex=True)
+        fig, (ax_read, ax_write) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
         fig.tight_layout(pad=3.0) 
 
         # Line plot for write chunk size for each disk operation
@@ -97,7 +99,7 @@ class Disk:
 
         ax_write.tick_params(axis='x', labelrotation=0, labelsize=8)
 
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "read_write_analysis.pdf"), dpi=100)
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "read_write_analysis.pdf"), dpi=100) # save fig before showing
         plt.show(block=False) 
         plt.pause(0.001) # Enables the program to keep running after the plot is displayed
 
@@ -128,10 +130,11 @@ class Cpu:
         df_block_mean_normalized = df_block_mean / max(df_block_mean.values)
 
         # Create subplots for cdf and normalized plots
-        fig, (ax_line, ax_cdf) = plt.subplots(2, 1, figsize=(10, 10))
+        fig, (ax_line, ax_cdf, ax_scatter) = plt.subplots(3, 1, figsize=(8, 8))
         fig.tight_layout(pad=3.0) # Increase distance between plots
         # fig.suptitle("CDF and Normalized Line Plot for # Processes") # Title of the figure
 
+        # Normalized lineplot
         ax_line.plot(df_run_mean_normalized, color="blue", label="running")
         ax_line.plot(df_block_mean_normalized, color="red", label="blocked")
         ax_line.set_xlabel("Time")
@@ -139,6 +142,7 @@ class Cpu:
         ax_line.tick_params(axis='x', labelrotation=0, labelsize=8)
         ax_line.legend(loc="upper right")
 
+        # CDF
         ax_cdf.hist(df_run_mean, bins=100, density=True, cumulative=True, histtype="step", color="red", label="run")
         ax_cdf.hist(df_block_mean, bins=100, cumulative=True, density=True, histtype="step", label="block")
         ax_cdf.set_title("CDF of # process")
@@ -147,7 +151,16 @@ class Cpu:
         ax_cdf.set_xlabel("# Process")
         ax_cdf.set_ylabel("Density")
 
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "procs_run_block_analysis.pdf"), dpi=100)
+        # Scatter plot x=run, y=block
+        ax_scatter.scatter(x=df_run_mean_normalized.values, y=df_block_mean_normalized, s=3, color="blue")
+        ax_scatter.set_xlabel("# running process")
+        ax_scatter.set_ylabel("# blocked processes")
+        ax_scatter.set_title("Scatter plot | # processes")
+        ax_scatter.set_ylim(0-.05, 1+.05)
+        ax_scatter.set_xlim(0-.05, 1+.05)
+
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "procs_run_block_analysis.pdf"), dpi=100) # save fig before showing
         plt.show(block=False)
         plt.pause(0.001) # This enables the program to keep running after the plot is displayed
 
