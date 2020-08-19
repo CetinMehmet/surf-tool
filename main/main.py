@@ -9,7 +9,7 @@ from parse_data import Parser
 from analyze_metrics import AnalyzeMetrics
 
 
-#TODO: find a better place to carry this function
+# TODO: find a better place to carry this function
 def get_dataset_path(path):
     if path[-1] != '/':
         return path + '/'

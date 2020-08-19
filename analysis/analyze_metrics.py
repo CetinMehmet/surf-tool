@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os, sys, pyarrow
 import seaborn as sns
 from pathlib import Path
+import calendar
 
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
@@ -44,6 +45,14 @@ class AnalyzeMetrics:
         path = AnalyzeMetrics.__get_parquet_path(metric, parq_dic)
         return pd.read_parquet(path, engine="pyarrow")
 
+    @staticmethod
+    def get_converted_xticks(ax):
+        """
+        :param ax:
+        :return list of day and month strings
+        """
+        return [pd.to_datetime(tick, unit='d').date().strftime("%d\n%b") for tick in ax.get_xticks()]
+
 
 class Disk:
 
@@ -57,8 +66,8 @@ class Disk:
         Normalized lineplot
         :return:
         """
-        df = AnalyzeMetrics.get_df("node_entropy_available_bits", self.node_parquets)
-
+        df: pd.DataFrame= AnalyzeMetrics.get_df("node_entropy_available_bits", self.node_parquets)
+        
     def read_write_analysis(self):
         """
         Normalized line plot
@@ -78,6 +87,7 @@ class Disk:
         df_read_completed.index = pd.to_datetime(df_read_completed.index, unit='s')
         df_write_completed.index = pd.to_datetime(df_write_completed.index, unit='s')
 
+        # TODO: Convert to MB, or even GB
         df_readsize = df_read_bytes/df_read_completed
         df_writesize = df_write_bytes/df_write_completed
 
@@ -89,12 +99,20 @@ class Disk:
         ax_read.plot(df_readsize, color="blue", label="read size")
         ax_read.set_title("Read bytes per operation", fontsize=10)
         ax_read.set_ylabel("Bytes")
-        ax_read.tick_params(axis='x', labelrotation=45, labelsize=8)
+        ax_read.set_xlabel("2020")
+        ax_read.set_xticklabels(labels=AnalyzeMetrics.get_converted_xticks(ax_read), 
+                                rotation=0,
+                                ha="center", 
+                                fontsize=8)
 
         ax_write.plot(df_writesize, color="red", label="write size")
         ax_write.set_title("Written bytes per operation", fontsize=10)
         ax_write.set_ylabel("Bytes")
-        ax_write.tick_params(axis='x', labelrotation=45, labelsize=8)
+        ax_write.set_xlabel("2020")
+        ax_write.set_xticklabels(labels=AnalyzeMetrics.get_converted_xticks(ax_write), 
+                                 rotation=0, 
+                                 ha="center", 
+                                 fontsize=8)
 
         # Normalized scatter plot for the read and written bytes from the disk
         ax_bytes.scatter(x=df_read_bytes.values/max(df_read_bytes.values),

@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import pytz
 
+#TODO: This class needs to be changed a lot. The average of average is wrong.
 
 class DiurnalAnalysis:
 
