@@ -12,7 +12,48 @@ from diurnal_analysis import DiurnalAnalysis
 
 
 """
-    Analyze metrics individually and plot them to a directory
+    Analyze the following metrics:
+        1. # of processes running-blocked
+        2. file description allocation
+        3. caches, 
+        4. utilized main memory (RAM), 
+        5. disk IO, read, and write time
+        6. disk IO size [B] + breakdown per read/write,
+
+    Split the metrics in terms of:
+        1. Plot the entire set of nodes, which means no partition in nodes
+        2. Split the nodes, CPU vs GPU
+        3. Break down number of cores for both CPU and GPU
+        4. Split from types of processors, there are 5 to 10 types.
+
+    Summarize data:
+        1. counts
+        2. basic statistics (mean, min, median, max, other quartiles, stddev, CoV if possible)
+        3. meta-metric
+
+    Diurnal Analysis:
+        1. Hourly analysis:
+            a. "Aggregated" over the entire period
+            b. "Aggregated" per month 
+
+            The hourly analysis allows us to see differences in office hours (9-5) vs non-office hours; 
+            Did the covid period affect people’s working habits (did they do more outside office hours for example?)
+        2. Daily analysis:
+            a. "Aggregated" over the entire period
+            b. "Aggregate" per month
+
+        3. Workday vs weekend:
+            a. "Aggregated" over the entire period
+            b. "Aggregate" per month
+        
+        4. Monthly (seasonal patterns):
+            a. aggregate all data per month (for each metric → one value per month, 
+            or the basic statistics (mean, min, median, max, other quartiles, stddev, CoV if possible))
+
+        5. Per node per metric create a plot to inspect per node.
+        6. Inspect Eigen values per node/metric.
+
+
 """
 
 TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent # Getting the parent of the parent of the current files path
@@ -59,15 +100,17 @@ class Disk:
     def __init__(self, node_parquets):
         self.node_parquets = node_parquets
 
-    def entropy_availability_analysis(self):
+    def IO_time_analysis(self):
+        pass
+
+    def read_write_time_analysis(self):
         """
-        Plot histogram
-        Diurnal analysis
-        Normalized lineplot
-        :return:
+        Function can be split to two if it grows big
         """
-        df: pd.DataFrame= AnalyzeMetrics.get_df("node_entropy_available_bits", self.node_parquets)
-        
+        pass
+
+
+    # TODO ignore for now
     def read_write_analysis(self):
         """
         Normalized line plot
@@ -142,6 +185,8 @@ class Cpu:
 
     def __init__(self, node_parquets):
         self.node_parquets = node_parquets
+
+    # Perfom diurnal analysis
 
     def nr_procs_running_blocked_analysis(self):
         """

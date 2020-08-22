@@ -5,7 +5,7 @@ DIR = 1
 FILE = 2
 
 
-class Parser:
+class ParseData:
 
     def __init__(self, dataset_path):
         self.dataset_path = dataset_path

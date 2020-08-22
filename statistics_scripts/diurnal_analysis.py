@@ -2,7 +2,32 @@ import pandas as pd
 import seaborn as sns
 import pytz
 
-#TODO: This class needs to be changed a lot. The average of average is wrong.
+"""
+    Diurnal Analysis:
+        1. Hourly analysis:
+            a. "Aggregated" over the entire period
+            b. "Aggregated" per month 
+
+            The hourly analysis allows us to see differences in office hours (9-5) vs non-office hours; 
+            Did the covid period affect people’s working habits (did they do more outside office hours for example?)
+
+        2. Daily analysis:
+            a. "Aggregated" over the entire period
+            b. "Aggregate" per month
+
+        3. Workday vs weekend:
+            a. "Aggregated" over the entire period
+            b. "Aggregate" per month
+        
+        4. Monthly (seasonal patterns):
+            a. aggregate all data per month (for each metric → one value per month, 
+            or the basic statistics (mean, min, median, max, other quartiles, stddev, CoV if possible))
+
+        5. Per node per metric create a plot to inspect per node.
+
+        6. Inspect Eigen values per node/metric.
+
+"""
 
 class DiurnalAnalysis:
 
@@ -11,7 +36,7 @@ class DiurnalAnalysis:
         self.df5 = df5
         self.df15 = df15
 
-    # Written by: Laurens Versluis
+    # Written by `Laurens Versluis`
     @staticmethod
     def get_diurnal_df(df):
         df = df.loc[:, (df.max() > 0)]
@@ -29,58 +54,49 @@ class DiurnalAnalysis:
 
         return df
 
-    def __hourly_analysis(self, df, title: str):
-        df_per_hour_per_node = self.df.groupby("hour_of_day").mean()
-        df_per_hour = df_per_hour_per_node.mean(axis=1)
+    def hourly(self, df, title: str):
+        """
+        Hourly analysis:
+            a. "Aggregated" over the entire period
+            b. "Aggregated" per month 
+        """
+        pass
 
-        sns_plot = sns.barplot(x=df_per_hour.index, y=df_per_hour.values)
-        sns_plot.set_xlabel("Hour of day")
-        sns_plot.set_ylabel("Entropy available bytes")
-        sns_plot.set_title("Hourly Entropy available bytes")
+    def daily(self, df, title: str):
+        """
+        Daily analysis:
+            a. "Aggregated" over the entire period
+            b. "Aggregate" per month
+        """
+        pass
 
-    def __daily_analysis(self, df, title: str):
-        df_per_hour_per_node = self.df.groupby("day").mean()
-        df_per_hour = df_per_hour_per_node.mean(axis=1)
+    def monthly(self, df, title: str):
+        """
+        Monthly (seasonal patterns):
+            a. "Aggregate" all data per month (for each metric → one value per month, 
+                or 
+            b. the basic statistics (mean, min, median, max, other quartiles, stddev, CoV if possible))
+        """
+        pass
 
-        sns_plot = sns.barplot(x=df_per_hour.index, y=df_per_hour.values)
-        sns_plot.set_xlabel("Hour of day")
-        sns_plot.set_ylabel("Entropy available bytes")
-        sns_plot.set_title("Hourly Entropy available bytes")
+    def workday_weekend(self):
+        """
+        Workday vs weekend:
+            a. "Aggregated" over the entire period
+            b. "Aggregate" per month
+        """
+        pass
 
-    def __monthly_analysis(self, df, title: str):
-        df_per_hour_per_node = self.df.groupby("month").mean()
-        df_per_hour = df_per_hour_per_node.mean(axis=1)
-
-        sns_plot = sns.barplot(x=df_per_hour.index, y=df_per_hour.values)
-        sns_plot.set_xlabel("Hour of day")
-        sns_plot.set_ylabel("Entropy available bytes")
-        sns_plot.set_title("Hourly Entropy available bytes")
-
-    def __full_time_analysis(self, df, title: str):
-        df_per_date_per_node = self.df.groupby("date").mean()
-        df_per_date = df_per_date_per_node.mean(axis=1)
-
-        # Plot line graph
-        ax = df_per_date.plot.line(
-            x=df.index,
-            y=df.values,
-            rot=45,
-            color="blue"
-        )
-        ax.set_ylim(0, )
-        ax.set_title(title)
+    def entire_period(self, df, title: str):
+        """
+        Per node per metric create a plot to inspect per node.
+        """
 
     def plot_analysis(self, time_frame: str, title: str):
-        self.df = self.get_diurnal_df(self.df)
-
-        if time_frame == "hour":
-            self.__hourly_analysis(self.df, title)
-        elif time_frame == "day":
-            self.__daily_analysis(self.df, title)
-        elif time_frame == "month":
-            self.__monthly_analysis(self.df, title)
-        else:
-            self.__full_time_analysis(self.df, title)
+        """
+        Plot requested analysis
+        """
+        pass
 
 
 

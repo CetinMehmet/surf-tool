@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
-from parse_data import Parser
+from parse_data import ParseData
 from analyze_metrics import AnalyzeMetrics
 
 
@@ -15,6 +15,10 @@ def get_dataset_path(path):
         return path + '/'
     return path
 
+"""
+    Covid: [27th of February - End of the current dataset]
+    NON-COVID: [Start of the current dataset - 26th of February]
+"""
 
 # Get the command line arguments and pass them for thorough analysis
 def main():
@@ -24,7 +28,7 @@ def main():
         sys.exit(0)
 
     dataset_path = get_dataset_path(sys.argv[1])
-    node_parquets, gpu_parquets = Parser(dataset_path).parse_data()
+    node_parquets, gpu_parquets = ParseData(dataset_path).parse_data()
     analyze_metric = AnalyzeMetrics(node_parquets, gpu_parquets)
 
     print("For the type of analysis, please enter one of the following commands:\ndisk\ngpu\nmemory\ncpu")

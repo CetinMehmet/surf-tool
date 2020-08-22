@@ -4,7 +4,7 @@ from scipy.stats.stats import pearsonr, spearmanr, kendalltau
     Since color blinds may also be using the tool, no red or green colors shall be used for any plot
 """
 
-class PlotType:
+class GraphType:
 
     @staticmethod
     def cdf(ax, dataset, color, label=None, xlabel=None, ylabel=None, title=None):
@@ -22,6 +22,7 @@ class PlotType:
 
     @staticmethod
     def normalized_lineplot():
+        # TODO: The xticks should be constructed to 
         pass
 
     """
