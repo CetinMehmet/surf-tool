@@ -1,3 +1,4 @@
+import pandas as pd
 
 """
     Split the metrics in terms of:
@@ -8,24 +9,45 @@
         5. COVID vs NON-COVID
 """
 
+# The CPU racks
+CPU_RACKS = [
+    'r1899', 'r1898', 'r1897', 
+    'r1896', 'r1903', 'r1902', 'r1128', 
+    'r1134', 'r1133', 'r1132'
+]
+
 class ParseMetric:
 
     def __init__(self):
         pass
 
-    def covid_non_covid(self):
+    def covid_non_covid(self, df):
         """
         INIT STEP: 
         Split data for COVID vs NON-COVID
+        Return covid non covid dfs
         """
-        pass
 
-    def cpu_gpu(self):
+        # Convert df index to TimeStamp if the index is just seconds
+        if df.index.dtype == "int64":
+            df.index = pd.to_datetime(df.index, unit='s')
+            
+        covid_df = df.loc['2020-02-27 00:00:00':, :]
+        non_covid_df = df.loc[:'2020-02-26 23:59:45', :]
+
+        return covid_df, non_covid_df
+
+    def cpu_gpu(self, df):
         """
         SECOND STEP:
         Split the nodes, CPU vs GPU
+        Return the cpu, and gpu partitioned dfs
         """
-        pass
+
+        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node[0:5] in CPU_RACKS]
+        gpu_nodes = [gpu_node for gpu_node in df.columns if gpu_node not in cpu_nodes]
+
+        return df[cpu_nodes], df[gpu_nodes]
 
     def nr_cores(self):
         """
