@@ -109,76 +109,12 @@ class Disk:
         """
         pass
 
+    def read_written_bytes_analysis(self):
+        pass
 
-    # TODO ignore for now
-    def read_write_analysis(self):
-        """
-        Normalized line plot
-        Line plot every read/write size
-        :return:
-        """
+    def read_write_completed_analysis(self):
+        pass
 
-        # Read parquets to df and get the mean of the nodes
-        df_read_bytes = AnalyzeMetrics.get_df("node_disk_bytes_read", self.node_parquets).mean(axis=1)
-        df_write_bytes = AnalyzeMetrics.get_df("node_disk_bytes_written", self.node_parquets).mean(axis=1)
-        df_read_completed = AnalyzeMetrics.get_df("node_disk_reads_completed", self.node_parquets).mean(axis=1)
-        df_write_completed = AnalyzeMetrics.get_df("node_disk_writes_completed", self.node_parquets).mean(axis=1)
-
-        # Adjust the seconds to "date"
-        df_read_bytes.index = pd.to_datetime(df_read_bytes.index, unit='s')
-        df_write_bytes.index = pd.to_datetime(df_write_bytes.index, unit='s')
-        df_read_completed.index = pd.to_datetime(df_read_completed.index, unit='s')
-        df_write_completed.index = pd.to_datetime(df_write_completed.index, unit='s')
-
-        # TODO: Convert to MB, or even GB
-        df_readsize = df_read_bytes/df_read_completed
-        df_writesize = df_write_bytes/df_write_completed
-
-        # Create subplots for line plots
-        fig, ( (ax_read, ax_write), (ax_complete, ax_bytes) ) = plt.subplots(2, 2, figsize=(8, 8))
-        fig.tight_layout(pad=5.0) 
-
-        # Line plot for write chunk size for each disk operation
-        ax_read.plot(df_readsize, color="blue", label="read size")
-        ax_read.set_title("Read bytes per operation", fontsize=10)
-        ax_read.set_ylabel("Bytes")
-        ax_read.set_xlabel("2020")
-        ax_read.set_xticklabels(labels=AnalyzeMetrics.get_converted_xticks(ax_read), 
-                                rotation=0,
-                                ha="center", 
-                                fontsize=8)
-
-        ax_write.plot(df_writesize, color="red", label="write size")
-        ax_write.set_title("Written bytes per operation", fontsize=10)
-        ax_write.set_ylabel("Bytes")
-        ax_write.set_xlabel("2020")
-        ax_write.set_xticklabels(labels=AnalyzeMetrics.get_converted_xticks(ax_write), 
-                                 rotation=0, 
-                                 ha="center", 
-                                 fontsize=8)
-
-        # Normalized scatter plot for the read and written bytes from the disk
-        ax_bytes.scatter(x=df_read_bytes.values/max(df_read_bytes.values),
-                         y=df_write_bytes.values/max(df_write_bytes.values), 
-                         color="green",
-                         s=2.5)
-        ax_bytes.set_xlabel("Bytes read")
-        ax_bytes.set_ylabel("Bytes written")
-        ax_bytes.set_title("Normalized scatter plot | # bytes read & written", fontsize=8)
-
-        # Normalized scatter plot for the completed read and write operations from the disk
-        ax_complete.scatter(x=df_read_completed.values/max(df_read_completed.values), 
-                            y=df_write_completed.values/max(df_write_completed.values), 
-                            s=2.5,
-                            color="green")
-        ax_complete.set_xlabel("Reads completed")
-        ax_complete.set_ylabel("Writes completed")
-        ax_complete.set_title("Normalized scatter plot | # completed read & write operations", fontsize=8)
-
-
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "read_write_analysis.pdf"), dpi=100) # save fig before showing
-        plt.show(block=False) 
-        plt.pause(0.001) # Enables the program to keep running after the plot is displayed
 
 
 class Cpu:
@@ -189,71 +125,9 @@ class Cpu:
     # Perfom diurnal analysis
 
     def nr_procs_running_blocked_analysis(self):
-        """
-        Normalized lineplot
-        """
         df_run = AnalyzeMetrics.get_df("node_procs_running", self.node_parquets).replace(-1, np.NaN)
         df_block = AnalyzeMetrics.get_df("node_procs_blocked", self.node_parquets).replace(-1, np.NaN)
-
-        df_run = DiurnalAnalysis.get_diurnal_df(df_run)
-        df_block = DiurnalAnalysis.get_diurnal_df(df_block)
-
-        df_run_dt = df_run.groupby("dt").mean()
-        df_run_mean = df_run_dt.mean(axis=1) # get mean of nodes
-
-        df_block_dt = df_block.groupby("dt").mean()
-        df_block_mean = df_block_dt.mean(axis=1) # get mean of nodes
-
-        df_run_mean_normalized = df_run_mean / max(df_run_mean.values)
-        df_block_mean_normalized = df_block_mean / max(df_block_mean.values)
-
-        # Create subplots for cdf and normalized plots
-        fig, (ax_line, ax_cdf, ax_scatter) = plt.subplots(3, 1, figsize=(8, 8))
-        fig.tight_layout(pad=3.0) # Increase distance between plots
-        # fig.suptitle("CDF and Normalized Line Plot for # Processes") # Title of the figure
-
-        # Normalized lineplot
-        ax_line.plot(df_run_mean_normalized, color="blue", label="running")
-        ax_line.plot(df_block_mean_normalized, color="red", label="blocked")
-        ax_line.set_xlabel("Time")
-        ax_line.set_title("# processes")
-        ax_line.tick_params(axis='x', labelrotation=0, labelsize=8)
-        ax_line.legend(loc="upper right")
-
-        # CDF
-        ax_cdf.hist(df_run_mean, bins=100, density=True, cumulative=True, histtype="step", color="red", label="run")
-        ax_cdf.hist(df_block_mean, bins=100, cumulative=True, density=True, histtype="step", label="block")
-        ax_cdf.set_title("CDF of # process")
-        ax_cdf.legend(loc="center")
-        ax_cdf.grid(True)
-        ax_cdf.set_xlabel("# Process")
-        ax_cdf.set_ylabel("Density")
-
-        # Scatter plot x=run, y=block
-        ax_scatter.scatter(x=df_run_mean_normalized.values, y=df_block_mean_normalized, s=3, color="blue")
-        ax_scatter.set_xlabel("# running process")
-        ax_scatter.set_ylabel("# blocked processes")
-        ax_scatter.set_title("Scatter plot | # processes", fontsize=8)
-        ax_scatter.set_ylim(0-.05, 1+.05)
-        ax_scatter.set_xlim(0-.05, 1+.05)
-
-
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "procs_run_block_analysis.pdf"), dpi=100) # save fig before showing
-        plt.show(block=False)
-        plt.pause(0.001) # This enables the program to keep running after the plot is displayed
-
-    def load_diurnal_analysis(self):
-        """
-        plot diurnal graphs for load1, load5, load15
-        :return:
-        """
-        df_load1 = AnalyzeMetrics.get_df("node_load1", self.node_parquets)
-        df_load5 = AnalyzeMetrics.get_df("node_load5", self.node_parquets)
-        df_load15 = AnalyzeMetrics.get_df("node_load15", self.node_parquets)
-
-        loads_df = DiurnalAnalysis(df1, df5, df15)
-        loads_df.plot_analysis("hour", "hourly load analysis")
-
+        pass
 
 class Memory:
 
@@ -261,9 +135,16 @@ class Memory:
         self.node_parquets = node_parquets
 
     def file_descriptor_analysis(self):
+        df_alloc = AnalyzeMetrics.get_df("node_filefd_allocated", self.node_parquets)
+        df_max = AnalyzeMetrics.get_df("node_filefd_maximum", self.node_parquets)
         pass
 
-    def commit_analysis(self):
+    def cache_analysis(self):
+        df = AnalyzeMetrics.get_df("node_memory_Buffers", self.node_parquets)
+        pass
+
+    def buffer_analysis(self):
+        df = AnalyzeMetrics.get_df("node_memory_Cached", self.node_parquets)
         pass
 
 
@@ -294,12 +175,4 @@ class Gpu:
         df = df.apply(parse_node_row, axis="columns", result_type="expand", args=(midx,))
 
         return df
-
-    def fanspeed_temperature_analysis(self):
-        """
-        Provides line, correlation, and diurnal plots
-        :return:
-        """
-        fanspeed_df = AnalyzeMetrics.get_df("gpu_fanspeed_percent", self.gpu_parquets)
-        temperature_df = AnalyzeMetrics.get_df("gpu_temperature_celcius", self.gpu_parquets)
 
