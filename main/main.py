@@ -1,12 +1,25 @@
-import sys, os
+import sys, os, datetime
 import pandas as pd
 from pathlib import Path
+import argparse
+
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
 from parse_data import ParseData
+from parse_argument import ParseArgument
 from analyze_metrics import AnalyzeMetrics
+
+"""
+analysis --period="FULL_DATASET" --source:"cpu"
+"""
+
+
+"""
+    Covid: [27th of February - End of the current dataset]
+    NON-COVID: [Start of the current dataset - 26th of February]
+"""
 
 
 # TODO: find a better place to carry this function
@@ -15,62 +28,31 @@ def get_dataset_path(path):
         return path + '/'
     return path
 
-"""
-    Covid: [27th of February - End of the current dataset]
-    NON-COVID: [Start of the current dataset - 26th of February]
-"""
 
-# Get the command line arguments and pass them for thorough analysis
+# Get the command line arguments and pass them for through analysis
 def main():
-    if len(sys.argv) != 2:
-        print("Please give the folder path to the dataset you would like to analyze"
-              "\nusage: <input-path> main.py")
-        sys.exit(0)
+    args = ParseArgument().get_args() # Get the arguments from the command line
 
-    dataset_path = get_dataset_path(sys.argv[1])
+    # Get the dataset path, parse the data to 2 dictionaries containing node and gpu parquet paths
+    dataset_path = get_dataset_path(args.path)
     node_parquets, gpu_parquets = ParseData(dataset_path).parse_data()
     analyze_metric = AnalyzeMetrics(node_parquets, gpu_parquets)
 
-    print("For the type of analysis, please enter one of the following commands:\ndisk\ngpu\nmemory\ncpu")
-    command = ""
-    while True:
-        command = str(input("> ")).strip()
-        if command == "q" or command == "exit":
-            """
-            Exit code when q is pressed or exit is typed
-            """
-            sys.exit(0)
-        elif command == "cpu":
-            """
-            Give the user the option to see which analysis (s)he wants
-            """
-            print("Please wait, as we are analyzing...")
-            analyze_metric.cpu.nr_procs_running_blocked_analysis() # Testing purposes
-            pass
-        elif command == "gpu":
-            """
-            Give the user the option to see which analysis (s)he wants
-            """
-            print("Please wait, as we are analyzing...")
-            pass
-        elif command == "disk":
-            """
-            Give the user the option to see which analysis (s)he wants
-            """
-            print("Please wait, as we are analyzing...")
-            analyze_metric.disk.read_write_analysis()
-            pass
-        elif command == "memory":
-            """
-            Give the user the option to see which analysis (s)he wants
-            """
-            print("Please wait, as we are analyzing...")
-            pass
-        elif command == "help":
-            print("For analysis enter one of the following commands:\ngpu\ncpu\ndisk\nmemory\n")
-        else:
-            print("Type 'help' for the command menu\n"
-                  "Press 'q' to quit")
+
+    if args.sourcename == "cpu":
+        print("Please wait, as we are analyzing...")
+        
+    elif args.sourcename == "gpu":
+        print("Please wait, as we are analyzing...")
+        
+    elif args.sourcename == "disk":
+        print("Please wait, as we are analyzing...")
+    
+    elif args.sourcename == "memory":
+        """
+        Give the user the option to see which analysis (s)he wants
+        """
+        print("Please wait, as we are analyzing...")
 
 
 if __name__ == "__main__":

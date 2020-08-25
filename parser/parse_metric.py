@@ -32,10 +32,23 @@ class ParseMetric:
         if df.index.dtype == "int64":
             df.index = pd.to_datetime(df.index, unit='s')
             
-        covid_df = df.loc['2020-02-27 00:00:00':, :]
-        non_covid_df = df.loc[:'2020-02-26 23:59:45', :]
+        covid_df = df.loc['2020-02-27 00:00:00' :, :]
+        non_covid_df = df.loc[: '2020-02-26 23:59:45', :]
 
         return covid_df, non_covid_df
+
+    def user_period_split(self, df, start_period, end_period):
+        """
+        Parse the period of the df according to the user's desire
+        """
+        # Convert df index to TimeStamp if the index is just seconds
+        if df.index.dtype == "int64":
+            df.index = pd.to_datetime(df.index, unit='s')
+            
+        user_df = df.loc[start_period : end_period, :]
+
+        return user_df
+
 
     def cpu_gpu(self, df):
         """
