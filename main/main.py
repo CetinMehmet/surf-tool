@@ -7,9 +7,9 @@ import argparse
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
-from parse_data import ParseData
+from parse_parquet import ParseParquet
 from parse_argument import ParseArgument
-from analyze_metrics import AnalyzeMetrics
+from analyze_metrics import Metric
 
 """
 analysis --period="FULL_DATASET" --source:"cpu"
@@ -35,8 +35,8 @@ def main():
 
     # Get the dataset path, parse the data to 2 dictionaries containing node and gpu parquet paths
     dataset_path = get_dataset_path(args.path)
-    node_parquets, gpu_parquets = ParseData(dataset_path).parse_data()
-    analyze_metric = AnalyzeMetrics(node_parquets, gpu_parquets)
+    node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
+    metric = Metric(node_parquets, gpu_parquets)
 
 
     if args.sourcename == "cpu":
@@ -49,10 +49,11 @@ def main():
         print("Please wait, as we are analyzing...")
     
     elif args.sourcename == "memory":
-        """
-        Give the user the option to see which analysis (s)he wants
-        """
-        print("Please wait, as we are analyzing...")
+        print("Please wait, as we are analyzing %s..." % (args.sourcename))
+        metric.cpu.nr_procs_running.daily_seasonal_diurnal_pattern()
+        print('done')
+
+    exit(0)
 
 
 if __name__ == "__main__":
