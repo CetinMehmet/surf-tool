@@ -50,7 +50,7 @@ def main():
     
     elif args.sourcename == "memory":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        metric.cpu.nr_procs_running.daily_seasonal_diurnal_pattern()
+        metric.cpu.nr_procs_blocked.daily_seasonal_diurnal_pattern()
         print('done')
 
     exit(0)
