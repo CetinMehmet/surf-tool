@@ -41,6 +41,7 @@ def main():
 
     if args.sourcename == "cpu":
         print("Please wait, as we are analyzing...")
+        metric.cpu.nr_procs_running.hourly_seasonal_diurnal_pattern()
         
     elif args.sourcename == "gpu":
         print("Please wait, as we are analyzing...")
@@ -50,7 +51,7 @@ def main():
     
     elif args.sourcename == "memory":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        metric.cpu.nr_procs_blocked.daily_seasonal_diurnal_pattern()
+        metric.memory.buffer_analysis.daily_seasonal_diurnal_pattern()
         print('done')
 
     exit(0)
