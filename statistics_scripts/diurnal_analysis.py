@@ -1,6 +1,11 @@
 import pandas as pd
-import seaborn as sns
+import sys
+import matplotlib.pyplot as plt
 import pytz
+
+sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
+
+from graph_type import GraphType
 
 """
     Diurnal Analysis:
@@ -29,16 +34,15 @@ import pytz
 
 """
 
+INTERVAL = 15
+HOUR = INTERVAL * 4
+DAY = HOUR * 24
+MONTH = DAY * 30
+
 class DiurnalAnalysis:
 
-    def __init__(self, df, df5=None, df15=None):
-        self.df = df
-        self.df5 = df5
-        self.df15 = df15
-
-    # Written by `Laurens Versluis`
-    @staticmethod
-    def get_diurnal_df(df):
+    # This function belongs to Laurens Versluis: https://github.com/lfdversluis
+    def __get_diurnal_df(self, df):
         df = df.loc[:, (df.max() > 0)]
 
         # Parse all times to UTC datetime objects
@@ -49,54 +53,121 @@ class DiurnalAnalysis:
         # dropping it is required to save the parquet file.
         df["dt"] = df["dt"].dt.tz_convert(pytz.timezone('Europe/Amsterdam')).dt.tz_localize(None)
         # Get hour of day and day columns to plot :)
-        df["hour_of_day"] = df["dt"].dt.hour
+        df["hour"] = df["dt"].dt.hour
         df["day"] = df["dt"].apply(lambda x: x.weekday())
 
         return df
 
-    def hourly(self, df, title: str):
+    def __get_hourly_seasonal_df(self, df):
         """
         Hourly analysis:
             a. "Aggregated" over the entire period
             b. "Aggregated" per month 
         """
-        pass
+        df = self.__get_diurnal_df(df)
+        df_per_hour_per_node = df.groupby("hour").mean() # seasonal aggregation per hour
+        df_per_hour_aggregate = df_per_hour_per_node.aggregate(func=sum, axis=1) # Take mean of all the nodes
+        
+        return df_per_hour_aggregate
 
-    def daily(self, df, title: str):
-        """
-        Daily analysis:
-            a. "Aggregated" over the entire period
-            b. "Aggregate" per month
-        """
-        pass
+    def __get_hourly_month_df(self, df, month):
+        df = self.__get_diurnal_df(df)
+        df_per_hour_per_node_monthly = df.loc[df["month"]==month, :].groupby("hour").mean()
+        df_per_hour_aggregate_month = df_per_hour_per_node_monthly.aggregate(func=sum, axis=1)
 
-    def monthly(self, df, title: str):
-        """
-        Monthly (seasonal patterns):
-            a. "Aggregate" all data per month (for each metric → one value per month, 
-                or 
-            b. the basic statistics (mean, min, median, max, other quartiles, stddev, CoV if possible))
-        """
-        pass
+        return df_per_hour_aggregate_month
 
-    def workday_weekend(self):
-        """
-        Workday vs weekend:
-            a. "Aggregated" over the entire period
-            b. "Aggregate" per month
-        """
-        pass
+    def __get_daily_month_df(self, df, month):
 
-    def entire_period(self, df, title: str):
-        """
-        Per node per metric create a plot to inspect per node.
-        """
+        # TODO: "Aggregated" per month 
+        df = self.__get_diurnal_df(df)
+        df_per_daily_per_node_monthly = df.loc[df["month"]==month, :].groupby("day").mean()
 
-    def plot_analysis(self, time_frame: str, title: str):
-        """
-        Plot requested analysis
-        """
-        pass
+        # Delete unused columns
+        del df_per_daily_per_node_monthly["day"] 
+        del df_per_daily_per_node_monthly["hour"] 
+
+        df_per_daily_aggregate_month = df_per_daily_per_node_monthly.aggregate(func=sum, axis=1)
+
+        return df_per_daily_aggregate_month
+
+    
+    def __get_daily_seasonal_df(self, df):
+        DAY = 24 # hours
+        df = self.__get_diurnal_df(df)
+
+        df_per_day_per_node = df.groupby(["day", "hour"]).mean() # seasonal aggregation per day of week 
+        df_sum = df_per_day_per_node.aggregate(func=sum, axis=1)# Take aggregate of all the nodes
+        df_sum.index = [hour for hour in range(0, DAY*7)]
+        
+        return df_sum
+
+    def daily_monthly_diurnal_pattern(self, df_cpu, df_gpu, month_dic):
+        fig, ax = plt.subplots()
+        for key, month in month_dic.items():
+            df_cpu_month = self.__get_daily_month_df(df_cpu, month)
+            df_gpu_month = self.__get_daily_month_df(df_gpu, month)
+
+
+
+    def daily_seasonal_diurnal_pattern(
+        self, df_cpu_dic, df_gpu_dic, ylabel=None,
+        shareX=None, title=None, savefig_title=None
+    ):
+        # Get daily_per_seasonal diurnal analysis
+        df_cpu_covid = self.__get_daily_seasonal_df(df_cpu_dic['covid'])
+        df_cpu_non_covid = self.__get_daily_seasonal_df(df_cpu_dic['non_covid'])
+        df_gpu_covid = self.__get_daily_seasonal_df(df_gpu_dic['covid'])
+        df_gpu_non_covid = self.__get_daily_seasonal_df(df_gpu_dic['non_covid'])
+
+        #TODO: Use functions after this part
+        GraphType().figure_daily_per_seasonal (
+            df_cpu_dic={
+                'covid': df_cpu_covid,
+                'non_covid': df_cpu_non_covid
+            },
+            df_gpu_dic={
+                'covid': df_gpu_covid,
+                'non_covid': df_gpu_non_covid
+            },
+            shareX=shareX, ylabel=ylabel, xlabel= "Days",
+            title_cpu=title + " | CPU nodes",
+            title_gpu=title + " | GPU nodes",
+            savefig_title=savefig_title
+        )
+    
+    def hourly_seasonal_diurnal_pattern (
+        self, df_cpu_dic, df_gpu_dic, ylabel=None, 
+        shareX=None, title=None, savefig_title=None
+    ):
+        # Get daily_per_seasonal diurnal analysis
+        df_cpu_covid = self.__get_hourly_seasonal_df(df_cpu_dic['covid'])
+        df_cpu_non_covid = self.__get_hourly_seasonal_df(df_cpu_dic['non_covid'])
+        df_gpu_covid = self.__get_hourly_seasonal_df(df_gpu_dic['covid'])
+        df_gpu_non_covid = self.__get_hourly_seasonal_df(df_gpu_dic['non_covid'])
+
+        #TODO: Use functions after this part
+        GraphType().figure_hourly_seasonal (
+            df_cpu_dic={
+                'covid': df_cpu_covid,
+                'non_covid': df_cpu_non_covid
+            },
+            df_gpu_dic={
+                'covid': df_gpu_covid,
+                'non_covid': df_gpu_non_covid
+            },
+            shareX=shareX, ylabel=ylabel, 
+            title_cpu=title + " | CPU nodes",
+            title_gpu=title + " | GPU nodes",
+            savefig_title=savefig_title
+        )
+
+        
+
+
+
+        
+
 
 
 

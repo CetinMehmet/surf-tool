@@ -41,18 +41,28 @@ def main():
 
     if args.sourcename == "cpu":
         print("Please wait, as we are analyzing...")
-        metric.cpu.nr_procs_running.hourly_seasonal_diurnal_pattern()
+        metric.cpu("surfsara_power_usage").daily_seasonal_diurnal_pattern()
+        # metric.cpu("surfsara_power_usage").rack_analysis()
+        # metric.cpu("surfsara_power_usage").rack_analysis()
         
     elif args.sourcename == "gpu":
         print("Please wait, as we are analyzing...")
         
     elif args.sourcename == "disk":
         print("Please wait, as we are analyzing...")
+        metric.disk("node_disk_bytes_written", "node_disk_writes_completed").entire_period_analysis()
+        metric.disk("node_disk_bytes_read", "node_disk_reads_completed").entire_period_analysis()
+        print("Done!")
     
     elif args.sourcename == "memory":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        metric.memory.buffer_analysis.daily_seasonal_diurnal_pattern()
+        metric.memory("node_memory_Cached").rack_analysis()
+
         print('done')
+
+    elif args.sourcename == "surfsara":
+        print("Please wait, as we are analyzing %s..." % (args.sourcename))
+        metric.surfsara("surfsara_power_usage").daily_seasonal_diurnal_pattern()
 
     exit(0)
 

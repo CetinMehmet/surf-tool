@@ -18,10 +18,8 @@ CPU_RACKS = [
 
 class ParseMetric:
 
-    def __init__(self):
-        pass
-
-    def covid_non_covid(self, df):
+    @staticmethod
+    def covid_non_covid(df):
         """
         INIT STEP: 
         Split data for COVID vs NON-COVID
@@ -35,9 +33,14 @@ class ParseMetric:
         covid_df = df.loc['2020-02-27 00:00:00' :, :]
         non_covid_df = df.loc[: '2020-02-26 23:59:45', :]
 
+        # Reset index 
+        covid_df.reset_index()
+        non_covid_df.reset_index()
+        
         return covid_df, non_covid_df
 
-    def user_period_split(self, df, start_period, end_period):
+    @staticmethod
+    def user_period_split(df, start_period, end_period):
         """
         Parse the period of the df according to the user's desire
         """
@@ -49,8 +52,8 @@ class ParseMetric:
 
         return user_df
 
-
-    def cpu_gpu(self, df):
+    @staticmethod 
+    def cpu_gpu(df):
         """
         SECOND STEP:
         Split the nodes, CPU vs GPU
@@ -62,6 +65,7 @@ class ParseMetric:
 
         return df[cpu_nodes], df[gpu_nodes]
 
+    @staticmethod
     def nr_cores(self):
         """
         Break down number of cores for both CPU and GPU
@@ -71,6 +75,7 @@ class ParseMetric:
         """
         pass
 
+    @staticmethod
     def type_of_procs(self):
         """
         Split from types of processors, there are 5 to 10 types.
