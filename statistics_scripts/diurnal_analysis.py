@@ -2,6 +2,7 @@ import pandas as pd
 import sys
 import matplotlib.pyplot as plt
 import pytz
+import numpy as np
 
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
 
@@ -38,6 +39,7 @@ INTERVAL = 15
 HOUR = INTERVAL * 4
 DAY = HOUR * 24
 MONTH = DAY * 30
+HOURS_IN_WEEK = 168
 
 class DiurnalAnalysis:
 
@@ -55,6 +57,7 @@ class DiurnalAnalysis:
         # Get hour of day and day columns to plot :)
         df["hour"] = df["dt"].dt.hour
         df["day"] = df["dt"].apply(lambda x: x.weekday())
+        df["month"] = df["dt"].dt.month
 
         return df
 
@@ -69,28 +72,6 @@ class DiurnalAnalysis:
         df_per_hour_aggregate = df_per_hour_per_node.aggregate(func=sum, axis=1) # Take mean of all the nodes
         
         return df_per_hour_aggregate
-
-    def __get_hourly_month_df(self, df, month):
-        df = self.__get_diurnal_df(df)
-        df_per_hour_per_node_monthly = df.loc[df["month"]==month, :].groupby("hour").mean()
-        df_per_hour_aggregate_month = df_per_hour_per_node_monthly.aggregate(func=sum, axis=1)
-
-        return df_per_hour_aggregate_month
-
-    def __get_daily_month_df(self, df, month):
-
-        # TODO: "Aggregated" per month 
-        df = self.__get_diurnal_df(df)
-        df_per_daily_per_node_monthly = df.loc[df["month"]==month, :].groupby("day").mean()
-
-        # Delete unused columns
-        del df_per_daily_per_node_monthly["day"] 
-        del df_per_daily_per_node_monthly["hour"] 
-
-        df_per_daily_aggregate_month = df_per_daily_per_node_monthly.aggregate(func=sum, axis=1)
-
-        return df_per_daily_aggregate_month
-
     
     def __get_daily_seasonal_df(self, df):
         DAY = 24 # hours
@@ -102,13 +83,32 @@ class DiurnalAnalysis:
         
         return df_sum
 
-    def daily_monthly_diurnal_pattern(self, df_cpu, df_gpu, month_dic):
-        fig, ax = plt.subplots()
-        for key, month in month_dic.items():
-            df_cpu_month = self.__get_daily_month_df(df_cpu, month)
-            df_gpu_month = self.__get_daily_month_df(df_gpu, month)
+    def get_daily_month_df(self, df, month):  
+        df = self.__get_diurnal_df(df)
+        df_per_daily_per_node_monthly = df.loc[df["month"]==month, :].groupby(["day", "hour"]).mean()
 
+        df_sum = df_per_daily_per_node_monthly.aggregate(func=sum, axis=1)# Take aggregate of all the nodes
+        df_sum.index = np.arange(HOURS_IN_WEEK)
+        
+        return df_sum
 
+    def get_hourly_month_df(self, df, month):
+        df = self.__get_diurnal_df(df)
+        df_per_hour_per_node_monthly = df.loc[df["month"]==month, :].groupby("hour").mean()
+        df_per_hour_aggregate_month = df_per_hour_per_node_monthly.aggregate(func=sum, axis=1)
+
+        return df_per_hour_aggregate_month
+
+    def daily_monthly_diurnal_pattern(self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title):
+
+        GraphType().figure_daily_per_monthly(
+            df_cpu=df_cpu,
+            df_gpu=df_gpu,
+            month_dic=month_dic,
+            savefig_title=savefig_title, 
+            ylabel=ylabel, 
+            title=title
+        )
 
     def daily_seasonal_diurnal_pattern(
         self, df_cpu_dic, df_gpu_dic, ylabel=None,
@@ -136,6 +136,19 @@ class DiurnalAnalysis:
             savefig_title=savefig_title
         )
     
+    def hourly_monthly_diurnal_pattern(
+        self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title
+    ):
+        GraphType().figure_hourly_monthly(
+            df_cpu=df_cpu,
+            df_gpu=df_gpu,
+            month_dic=month_dic,
+            savefig_title=savefig_title, 
+            ylabel=ylabel, 
+            title=title
+        )
+
+
     def hourly_seasonal_diurnal_pattern (
         self, df_cpu_dic, df_gpu_dic, ylabel=None, 
         shareX=None, title=None, savefig_title=None

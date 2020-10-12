@@ -35,6 +35,11 @@ class Cpu(object):
             self.ylabel = "Running procs"
             self.savefig_title = "running_procs"
 
+        elif parquet == "node_procs_blocked":
+            self.title = "Total number of blocked procs"
+            self.ylabel = "Blocked procs"
+            self.savefig_title = "blocked_procs"
+
         elif parquet == "surfsara_power_usage":
             self.title = "Surfsara power usage(watts)"
             self.ylabel = "Power usage(watts)"
@@ -56,7 +61,14 @@ class Cpu(object):
         )
     
     def daily_monthly_diurnal_pattern(self):
-        pass
+        DiurnalAnalysis().daily_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="daily_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
 
     def hourly_seasonal_diurnal_pattern(self, shareX=True):
 
@@ -71,7 +83,16 @@ class Cpu(object):
             ylabel=self.ylabel, shareX=True, title=self.title, 
             savefig_title='hourly_seasonal_' + self.savefig_title
         )
-            
+    
+    def hourly_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().hourly_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="hourly_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
 
     def rack_analysis(self):
         GraphType().figure_rack_analysis(

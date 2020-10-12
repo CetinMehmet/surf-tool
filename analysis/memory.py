@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import pandas as pd
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
@@ -57,6 +58,16 @@ class Memory(object):
             savefig_title='daily_seasonal_' + self.savefig_title
         )
 
+    def daily_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().daily_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="daily_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
+
     def hourly_seasonal_diurnal_pattern(self, shareX=True):
         self.savefig_title += "hourly_seasonal_v1"
         DiurnalAnalysis().hourly_seasonal_diurnal_pattern(
@@ -71,6 +82,15 @@ class Memory(object):
             savefig_title='hourly_seasonal_' + self.savefig_title
         )
 
+    def hourly_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().hourly_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="hourly_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
     
     def rack_analysis(self): 
         self.savefig_title += "avg_per_node_per_rack_v1"

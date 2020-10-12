@@ -46,7 +46,7 @@ class Disk(object):
         elif parquet_rw == "node_disk_bytes_read":
             self.title = "Total MB read per read operation | All nodes"
             self.ylabel = "MB read"
-            self.savefig_title = "bytes_read_per_operation_"
+            self.savefig_title = "MB_read_per_operation_"
         else:
             print("Wrong parquet given")
         
@@ -63,6 +63,16 @@ class Disk(object):
             shareX=True, title=self.title, ylabel=self.ylabel,
             savefig_title=self.savefig_title
         )
+    
+    def daily_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().daily_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="daily_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
 
     def hourly_seasonal_diurnal_pattern(self, shareX=True):
         self.savefig_title += "hourly_seasonal_v1"
@@ -77,7 +87,17 @@ class Disk(object):
             ylabel=self.ylabel, shareX=True, title=self.title, 
             savefig_title=self.savefig_title
         )
- 
+    
+    def hourly_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().hourly_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="hourly_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
+
     def rack_analysis(self):
         self.savefig_title += "avg_per_node_per_rack_v1"
         GraphType().figure_rack_analysis(
@@ -108,3 +128,9 @@ class Disk(object):
             savefig_title="entire_period_" + self.savefig_title
         )
 
+    # TODO unfinished function
+    def correlation_analysis(self):
+        df_cpu_covid_sum = self.df_cpu_covid.aggregate(func=sum, axis=1)
+        df_gpu_covid_sum = self.df_gpu_covid.aggregate(func=sum, axis=1)
+        GraphType().scatter_plot(title="Bytes read/written per operation | pearson = "+ str(GraphType().get_pearsonr(x=self)[0]),
+        x=df_cpu_covid_sum.values, y=df_gpu_covid_sum.values)

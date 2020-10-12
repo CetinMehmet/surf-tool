@@ -41,9 +41,10 @@ def main():
 
     if args.sourcename == "cpu":
         print("Please wait, as we are analyzing...")
-        metric.cpu("surfsara_power_usage").daily_seasonal_diurnal_pattern()
+        # metric.cpu("surfsara_power_usage").daily_seasonal_diurnal_pattern()
         # metric.cpu("surfsara_power_usage").rack_analysis()
         # metric.cpu("surfsara_power_usage").rack_analysis()
+        metric.cpu("node_procs_running").daily_monthly_diurnal_pattern()
         
     elif args.sourcename == "gpu":
         print("Please wait, as we are analyzing...")
@@ -62,7 +63,9 @@ def main():
 
     elif args.sourcename == "surfsara":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        metric.surfsara("surfsara_power_usage").daily_seasonal_diurnal_pattern()
+        # metric.surfsara("surfsara_power_usage").daily_seasonal_diurnal_pattern()
+        # metric.surfsara("surfsara_power_usage").daily_monthly_diurnal_pattern()
+        metric.surfsara("surfsara_power_usage").hourly_monthly_diurnal_pattern()
 
     exit(0)
 

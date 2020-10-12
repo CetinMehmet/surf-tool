@@ -27,7 +27,7 @@ class Surfsara(object):
         self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
         self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
             
-        self.title = "Total power consumption | SURFsara"
+        self.title = "Power consumption | SURFsara"
         self.ylabel = "Power consumption(watt)"
         self.savefig_title = "surfsara_nodes_power_consumption"
 
@@ -44,6 +44,26 @@ class Surfsara(object):
             }, 
             shareX=True, title=self.title, ylabel=self.ylabel,
             savefig_title='daily_seasonal_' + self.savefig_title
+        )
+
+    def daily_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().daily_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="daily_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
+        )
+
+    def hourly_monthly_diurnal_pattern(self):
+        DiurnalAnalysis().hourly_monthly_diurnal_pattern(
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            df_cpu=self.df_cpu,
+            df_gpu=self.df_gpu,
+            savefig_title="hourly_monthly_" + self.savefig_title, 
+            ylabel=self.ylabel, 
+            title=self.title
         )
 
     def hourly_seasonal_diurnal_pattern(self, shareX=True):
