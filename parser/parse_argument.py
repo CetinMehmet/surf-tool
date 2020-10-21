@@ -10,9 +10,9 @@ class ParseArgument:
                             action="store", type=str, dest="path", required=True,
                             help="The path to the dataset")
 
-        self.__parser.add_argument("--node",
-                            action="store", type=str, dest="nodename", choices=["cpu", "gpu"], required=True,
-                            help="Select the type of node you would like to analyze.")
+        # self.__parser.add_argument("--node",
+        #                     action="store", type=str, dest="nodename", choices=["cpu", "gpu"], required=True,
+        #                     help="Select the type of node you would like to analyze.")
                         
         self.__parser.add_argument("-p", "--period",
                             action="store", type=str, dest="period", default="FULL", nargs='*',

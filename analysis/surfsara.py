@@ -18,8 +18,9 @@ class Surfsara(object):
         self.node_parquets = node_parquets
     
         # Get parquet data and load to df
-        df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN) 
+        df = Metric.get_df(metric=parquet, parq_dic=self.node_parquets).replace(-1, np.NaN) 
 
+        df.sort_index(inplace=True)
         # Split df to cpu and gpu nodes
         self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
 
@@ -43,15 +44,15 @@ class Surfsara(object):
                 'non_covid': self.df_gpu_non_covid
             }, 
             shareX=True, title=self.title, ylabel=self.ylabel,
-            savefig_title='daily_seasonal_' + self.savefig_title
+            savefig_title=self.savefig_title
         )
 
     def daily_monthly_diurnal_pattern(self):
         DiurnalAnalysis().daily_monthly_diurnal_pattern(
-            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
-            savefig_title="daily_monthly_" + self.savefig_title, 
+            savefig_title=self.savefig_title + '_daily_monthly' , 
             ylabel=self.ylabel, 
             title=self.title
         )
@@ -102,14 +103,15 @@ class Surfsara(object):
         self.df_gpu.index = pd.to_datetime(self.df_gpu.index, utc=True, unit="s")
 
         # Get the sum of all the nodes
-        self.df_cpu = pd.DataFrame(self.df_cpu).aggregate(func=sum, axis=1)
-        self.df_gpu = pd.DataFrame(self.df_gpu).aggregate(func=sum, axis=1)
+        df_cpu_aggr = pd.DataFrame(self.df_cpu).aggregate(func=sum, axis=1)
+        df_gpu_aggr = pd.DataFrame(self.df_gpu).aggregate(func=sum, axis=1)
+
 
         GraphType().entire_period_analysis(
-            df_cpu=self.df_cpu, df_gpu=self.df_gpu, 
+            df_cpu=df_cpu_aggr, df_gpu=df_gpu_aggr, 
             ylabel=self.ylabel, 
             title="Total power consumption", 
-            savefig_title="entire_period_" + self.savefig_title
+            savefig_title=self.savefig_title + "_entire_period" 
         )
         
     

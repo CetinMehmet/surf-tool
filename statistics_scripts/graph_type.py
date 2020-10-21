@@ -161,7 +161,7 @@ class GraphType:
         ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        # plt.show()
         plt.pause(0.0001)
 
 
@@ -201,7 +201,7 @@ class GraphType:
         ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        # plt.show()
         plt.pause(0.0001)
 
     def figure_hourly_monthly(self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title):
@@ -249,7 +249,7 @@ class GraphType:
         ax_gpu.set_xticklabels([hour for hour in range(0, 24, 2)])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        # plt.show()
         plt.pause(0.0001)
 
     def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic, ylabel, title=None, savefig_title=None):
@@ -275,7 +275,7 @@ class GraphType:
         ax.set_xticklabels(labels=self.__get_converted_xticks(ax))
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        # plt.show()
         plt.pause(0.0001)
 
     def scatter_plot(self, title, x, y, savefig_title):
@@ -287,7 +287,7 @@ class GraphType:
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        # plt.show()
         plt.pause(0.0001)
         
 

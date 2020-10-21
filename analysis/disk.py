@@ -24,12 +24,14 @@ class Disk(object):
             print("wrong order")
             exit(1)
 
+
         df_comp = Metric.get_df(parquet_comp, self.node_parquets).replace(-1, np.NaN)
         df_rw = Metric.get_df(parquet_rw, self.node_parquets).replace(-1, np.NaN)
 
         # Divide bytes read/write to read/write completed
         df = df_rw / df_comp
         df = df / (1024 * 1024)
+        df.sort_index(inplace=True)
 
         # Split df to cpu and gpu nodes
         self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)

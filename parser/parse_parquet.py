@@ -9,8 +9,9 @@ class ParseParquet:
 
     def __init__(self, dataset_path):
         self.dataset_path = dataset_path
-        self.pqNvidiaEncrypted, self.pqEncrypted = next(os.walk(dataset_path))[DIR]
+        self.pqNvidiaEncrypted, self.pqEncrypted, self.pqEncryptedNew = next(os.walk(dataset_path))[DIR]
         self.node_dir = next(os.walk(dataset_path + self.pqEncrypted))[DIR]
+        self.new_node_dir = next(os.walk(dataset_path + self.pqEncryptedNew))[DIR]
         self.gpu_dir = next(os.walk(dataset_path + self.pqNvidiaEncrypted))[DIR]
 
     def __construct_parquet_path(self, metric_dir: list, pq_path: str):
@@ -30,6 +31,15 @@ class ParseParquet:
 
         return metric_path_dic
 
+    def __construct_new_data_parq_path(self, metric_dir: list, pq_path: str):
+        metric_path_dic = {}
+
+        for metric in metric_dir:
+            metric_path = self.dataset_path + pq_path + "/" + metric
+            metric_path_dic[metric] = metric_path
+
+        return metric_path_dic
+
     def get_parquets(self):
         """
         Parse the node and gpu files for analysis
@@ -46,6 +56,7 @@ class ParseParquet:
         # key: metric, value: path_to_parquet
         node_parquets = self.__construct_parquet_path(self.node_dir, self.pqEncrypted)
         gpu_parquets = self.__construct_parquet_path(self.gpu_dir, self.pqNvidiaEncrypted)
+        new_node_parquets = self.__construct_new_data_parq_path(self.new_node_dir, self.pqEncryptedNew)
 
-        return node_parquets, gpu_parquets
+        return new_node_parquets, node_parquets, gpu_parquets
 

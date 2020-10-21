@@ -16,9 +16,11 @@ class Memory(object):
         from analyze_metrics import Metric # Prevents circular error
 
         self.node_parquets = node_parquets
-    
+
+        
         # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
+        df.sort_index(inplace=True)
         df = df / (1024*1024*1024) # Convert bytes to GB
 
         # Split df to cpu and gpu nodes

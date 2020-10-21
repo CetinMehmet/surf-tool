@@ -35,22 +35,23 @@ def main():
 
     # Get the dataset path, parse the data to 2 dictionaries containing node and gpu parquet paths
     dataset_path = get_dataset_path(args.path)
-    node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
-    metric = Metric(node_parquets, gpu_parquets)
+    new_node_parquets, node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
+    metric = Metric(new_node_parquets, node_parquets, gpu_parquets)
 
 
     if args.sourcename == "cpu":
         print("Please wait, as we are analyzing...")
-        # metric.cpu("surfsara_power_usage").daily_seasonal_diurnal_pattern()
+        # metric.cpu("node_procs_running").entire_period_analysis()
         # metric.cpu("surfsara_power_usage").rack_analysis()
         # metric.cpu("surfsara_power_usage").rack_analysis()
-        metric.cpu("node_procs_running").daily_monthly_diurnal_pattern()
+        metric.cpu("node_procs_running").daily_seasonal_diurnal_pattern()
+     
         
     elif args.sourcename == "gpu":
-        print("Please wait, as we are analyzing...")
+        print("Please wait, as we are analyzing %s..." % (args.sourcename))
         
     elif args.sourcename == "disk":
-        print("Please wait, as we are analyzing...")
+        print("Please wait, as we are analyzing %s..." % (args.sourcename))
         metric.disk("node_disk_bytes_written", "node_disk_writes_completed").entire_period_analysis()
         metric.disk("node_disk_bytes_read", "node_disk_reads_completed").entire_period_analysis()
         print("Done!")
@@ -63,9 +64,12 @@ def main():
 
     elif args.sourcename == "surfsara":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        # metric.surfsara("surfsara_power_usage").daily_seasonal_diurnal_pattern()
+        metric.surfsara("surfsara_power_usage").daily_seasonal_diurnal_pattern()
         # metric.surfsara("surfsara_power_usage").daily_monthly_diurnal_pattern()
-        metric.surfsara("surfsara_power_usage").hourly_monthly_diurnal_pattern()
+        # metric.surfsara("surfsara_power_usage").hourly_monthly_diurnal_pattern()
+        # metric.surfsara("surfsara_power_usage").entire_period_analysis()
+        # metric.surfsara("surfsara_power_usage").hourly_seasonal_diurnal_pattern()
+        # metric.surfsara("surfsara_power_usage").rack_analysis()
 
     exit(0)
 

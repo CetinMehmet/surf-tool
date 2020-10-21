@@ -66,12 +66,13 @@ TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 
 class Metric:
 
-    def __init__(self, node_parquets: dict, gpu_parquets: dict):
+    def __init__(self, new_node_parquets: dict, node_parquets: dict, gpu_parquets: dict):
         self.node_parquets = node_parquets
         self.gpu_parquets = gpu_parquets
+        self.new_node_parquets = new_node_parquets
 
     def cpu(self, parquet):
-        return Cpu(self.node_parquets, parquet)
+        return Cpu(node_parquets=self.new_node_parquets, parquet=parquet) # New dataset is tested
 
     def disk(self, parquet, parquet2):
         return Disk(self.node_parquets, parquet, parquet2)
@@ -82,19 +83,21 @@ class Metric:
     def surfsara(self, parquet):
         return Surfsara(self.node_parquets, parquet)
 
-    def __get_parquet_path(self, metric, parq_dic):
+    @staticmethod
+    def __get_parquet_path(metric, parq_dic):
         for key, value in parq_dic.items():
             if key == metric:
                 return value
 
-    def get_df(self, metric, parq_dic):
+    @staticmethod
+    def get_df(metric, parq_dic):
         """
         return the df for the corresponding "metric" from the "parquet dict"
         :param metric:
         :param parq_dic:
         :return:
         """
-        path = self.__get_parquet_path(metric, parq_dic)
+        path = Metric.__get_parquet_path(metric, parq_dic)
         return pd.read_parquet(path, engine="pyarrow")
 
     def construct_table(self, df):
@@ -113,7 +116,7 @@ class Metric:
             cellText=df_table.values,
             colLabels=df_table.columns,
             rowLabels=row_labels,
-            colWidths=[.4 for i in range(len(row_labes))],
+            colWidths=[.4 for i in range(len(row_labels))],
             loc='center'
         )
 

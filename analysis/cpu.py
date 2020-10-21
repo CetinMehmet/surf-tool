@@ -18,9 +18,10 @@ class Cpu(object):
         from analyze_metrics import Metric # Prevents circular error
 
         self.node_parquets = node_parquets
-    
+
         # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
+        df.sort_index(inplace=True)
 
         # Split df to cpu and gpu nodes
         self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
@@ -30,20 +31,15 @@ class Cpu(object):
         self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
 
         self.title, self.ylabel, self.savefig_title = "", "", ""
-        if parquet == "node_procs_running":
+        if parquet == "new_data_node_procs_running":
             self.title = "Total number of running procs"
             self.ylabel = "Running procs"
             self.savefig_title = "running_procs"
 
-        elif parquet == "node_procs_blocked":
+        elif parquet == "new_data_node_procs_blocked":
             self.title = "Total number of blocked procs"
             self.ylabel = "Blocked procs"
             self.savefig_title = "blocked_procs"
-
-        elif parquet == "surfsara_power_usage":
-            self.title = "Surfsara power usage(watts)"
-            self.ylabel = "Power usage(watts)"
-            self.savefig_title = "surfsara_power_usage_v2"
 
 
     def daily_seasonal_diurnal_pattern(self, shareX=True):
@@ -62,7 +58,7 @@ class Cpu(object):
     
     def daily_monthly_diurnal_pattern(self):
         DiurnalAnalysis().daily_monthly_diurnal_pattern(
-            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
             savefig_title="daily_monthly_" + self.savefig_title, 
@@ -116,11 +112,15 @@ class Cpu(object):
         self.df_cpu = pd.DataFrame(self.df_cpu).aggregate(func=sum, axis=1)
         self.df_gpu = pd.DataFrame(self.df_gpu).aggregate(func=sum, axis=1)
 
+        self.df_cpu.head()
+        self.df_gpu.head()
+
+        """
         GraphType().entire_period_analysis(
             df_cpu=self.df_cpu, df_gpu=self.df_gpu, 
             ylabel=self.ylabel, 
-            title="Total power consumption", 
+            title=self.title, 
             savefig_title="entire_period_" + self.savefig_title
-        )
+        )"""
         
 
