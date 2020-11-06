@@ -44,7 +44,7 @@ HOURS_IN_WEEK = 168
 class DiurnalAnalysis:
 
     # This function belongs to Laurens Versluis: https://github.com/lfdversluis
-    def __get_diurnal_df(self, df):
+    def get_diurnal_df(self, df):
         df = df.loc[:, (df.max() > 0)]
 
         # Parse all times to UTC datetime objects
@@ -67,7 +67,7 @@ class DiurnalAnalysis:
             a. "Aggregated" over the entire period
             b. "Aggregated" per month 
         """
-        df = self.__get_diurnal_df(df)
+        df = self.get_diurnal_df(df)
         df_per_hour_per_node = df.groupby("hour").mean() # seasonal aggregation per hour
         df_per_hour_aggregate = df_per_hour_per_node.aggregate(func=sum, axis=1) # Take mean of all the nodes
         
@@ -75,7 +75,7 @@ class DiurnalAnalysis:
     
     def __get_daily_seasonal_df(self, df):
         DAY = 24 # hours
-        df = self.__get_diurnal_df(df)
+        df = self.get_diurnal_df(df)
 
         df_per_day_per_node = df.groupby(["day", "hour"]).mean() # seasonal aggregation per day of week 
         df_sum = df_per_day_per_node.aggregate(func=sum, axis=1)# Take aggregate of all the nodes
@@ -84,7 +84,7 @@ class DiurnalAnalysis:
         return df_sum
 
     def get_daily_month_df(self, df, month):  
-        df = self.__get_diurnal_df(df)
+        df = self.get_diurnal_df(df)
         df_per_daily_per_node_monthly = df.loc[df["month"]==month, :].groupby(["day", "hour"]).mean()
 
         df_sum = df_per_daily_per_node_monthly.aggregate(func=sum, axis=1)# Take aggregate of all the nodes
@@ -93,7 +93,7 @@ class DiurnalAnalysis:
         return df_sum
 
     def get_hourly_month_df(self, df, month):
-        df = self.__get_diurnal_df(df)
+        df = self.get_diurnal_df(df)
         df_per_hour_per_node_monthly = df.loc[df["month"]==month, :].groupby("hour").mean()
         df_per_hour_aggregate_month = df_per_hour_per_node_monthly.aggregate(func=sum, axis=1)
 

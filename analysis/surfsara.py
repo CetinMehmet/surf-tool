@@ -21,6 +21,8 @@ class Surfsara(object):
         df = Metric.get_df(metric=parquet, parq_dic=self.node_parquets).replace(-1, np.NaN) 
 
         df.sort_index(inplace=True)
+
+
         # Split df to cpu and gpu nodes
         self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
 
@@ -34,7 +36,6 @@ class Surfsara(object):
 
 
     def daily_seasonal_diurnal_pattern(self, shareX=True):
-        self.savefig_title += "daily_seasonal_v1"
         DiurnalAnalysis().daily_seasonal_diurnal_pattern(
             df_cpu_dic={'covid': self.df_cpu_covid, 
                         'non_covid': self.df_cpu_non_covid,
@@ -44,15 +45,15 @@ class Surfsara(object):
                 'non_covid': self.df_gpu_non_covid
             }, 
             shareX=True, title=self.title, ylabel=self.ylabel,
-            savefig_title=self.savefig_title
+            savefig_title="daily_seasonal_" + self.savefig_title
         )
 
     def daily_monthly_diurnal_pattern(self):
         DiurnalAnalysis().daily_monthly_diurnal_pattern(
-            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5},
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
-            savefig_title=self.savefig_title + '_daily_monthly' , 
+            savefig_title='daily_monthly_' + self.savefig_title, 
             ylabel=self.ylabel, 
             title=self.title
         )
@@ -68,7 +69,6 @@ class Surfsara(object):
         )
 
     def hourly_seasonal_diurnal_pattern(self, shareX=True):
-        self.savefig_title += "hourly_seasonal_v1"
         DiurnalAnalysis().hourly_seasonal_diurnal_pattern(
             df_cpu_dic={'covid': self.df_cpu_covid, 
                         'non_covid': self.df_cpu_non_covid,
@@ -83,7 +83,6 @@ class Surfsara(object):
 
     
     def rack_analysis(self): 
-        self.savefig_title += "avg_per_node_per_rack_v1"
         self.title = "Avg " + self.title
         GraphType().figure_rack_analysis(
             df_cpu_dic={
@@ -94,7 +93,7 @@ class Surfsara(object):
                 'covid': self.df_gpu_covid, 
                 'non_covid': self.df_gpu_non_covid
             }, 
-            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title
+            ylabel=self.ylabel, title=self.title, savefig_title="avg_per_node_per_rack_" + self.savefig_title
         )
 
     def entire_period_analysis(self):

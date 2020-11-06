@@ -90,8 +90,12 @@ class GraphType:
         ax.plot(df_non_covid, marker="*", label="non-covid")
         ax.set_ylim(0, )
         ax.set_title(title)
-        ax.set_ylabel(ylabel)
         ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+
+        # Move the 1e sign next to the ylabel
+        # ax.yaxis.offsetText.set_visible(False)
+        offset = ax.yaxis.get_offset_text()
+        ax.set_ylabel(ylabel + " " + offset.get_text())
         
         xcoords = [0] + [xcoord for xcoord in range(23, WEEK, DAY)]
         for xc in xcoords:
@@ -265,17 +269,21 @@ class GraphType:
     def entire_period_analysis(self, df_cpu, df_gpu, ylabel=None, title=None, savefig_title=None):
 
         _, (ax) = plt.subplots( figsize=(18,10))
+
+        # ax.yaxis.offsetText.set_visible(False)
+        offset = ax.yaxis.get_offset_text()
+        ax.set_ylabel(ylabel + " " + offset.get_text())
+
         ax.plot(df_cpu, label="cpu", color="blue")
         ax.plot(df_gpu, label="gpu", color="red")
         ax.set_ylim(0, )
-        ax.set_ylabel(ylabel)
         ax.set_xlabel("Time")
         ax.set_title(title)
         ax.legend(loc="lower right", fontsize=18)
         ax.set_xticklabels(labels=self.__get_converted_xticks(ax))
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        # plt.show()
+        plt.show()
         plt.pause(0.0001)
 
     def scatter_plot(self, title, x, y, savefig_title):
@@ -293,5 +301,28 @@ class GraphType:
 
     def get_pearsonr(self, x, y):
         return scipy.stats.pearsonr(x=x, y=y)[0] # Return r which is pearson correlation coefficient
+
+    def CDF_plot(self, ax_cpu_dic, ax_gpu_dic, savefig_title):
+        fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1)
+        fig.tight_layout(pad=5.0)
+
+        ax_cpu.set_title("Mean Memory(RAM) Utilization | CPU nodes")
+        ax_cpu.hist(x=ax_cpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
+        ax_cpu.hist(x=ax_cpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid') # non-covid
+        ax_cpu.set_ylabel("Density")
+        ax_cpu.set_xlabel("Memory utilization ratio")
+        ax_cpu.legend(loc='upper right')
+
+        ax_gpu.set_title("Mean Memory(RAM) Utilization | GPU nodes")
+        ax_gpu.hist(x=ax_gpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
+        ax_gpu.hist(x=ax_gpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid') # non-covid
+        ax_gpu.set_ylabel("Density")
+        ax_gpu.set_xlabel("Memory utilization ratio")
+        ax_gpu.legend(loc='upper right')
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
+        plt.show()
+
+
 
 

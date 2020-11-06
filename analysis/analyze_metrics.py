@@ -74,11 +74,14 @@ class Metric:
     def cpu(self, parquet):
         return Cpu(node_parquets=self.new_node_parquets, parquet=parquet) # New dataset is tested
 
-    def disk(self, parquet, parquet2):
-        return Disk(self.node_parquets, parquet, parquet2)
+    def disk(self, parquet, *args):
+        if args:
+            return Disk(self.node_parquets, parquet, args[0])
+        else:
+            return Disk(self.node_parquets, parquet)
 
-    def memory(self, parquet):
-        return Memory(self.node_parquets, parquet)
+    def memory(self, parquet, *args):
+        return Memory(self.node_parquets, parquet, args[0])
 
     def surfsara(self, parquet):
         return Surfsara(self.node_parquets, parquet)
