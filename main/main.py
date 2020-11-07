@@ -43,41 +43,19 @@ def main():
 
     # Get start and endtime
     period = args.periodname[0]
-
-    # Get nodes
     nodes = args.nodenames
+    metric_parquet = args.metricname
+    metric_name = " ".join(metric_parquet.split("_")[1:])
+    custom_analysis = False if period == "" and nodes == [] else True
 
-    # Default analysis
-    if period == "" and nodes == []:
-        pass
-
-
-    # Custom analysis
-    else:
-        pass
-
-    if args.sourcename == "cpu": # Metrics: procs_running, procs_blocked
-        print("Please wait, as we are analyzing...")
-       
-        # metric.custom("node_procs_running", parquet_total=None, nodes=nodes, period=period).entire_period_analysis()
-        # metric.custom("node_load1", parquet_total=None, nodes=nodes, period=period).custom_daily_seasonal_diurnal_pattern()
-        metric.custom("node_load1", parquet_total=None, nodes=nodes, period=period).custom_hourly_seasonal_diurnal_pattern()
-        print("Done!")
-       
-    elif args.sourcename == "disk": #
-        print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        
+    if custom_analysis: # Metrics: procs_running, procs_blocked
+        print("Please wait, as we are analyzing %s..." % metric_name)
+        metric.custom(metric_parquet, parquet_total=None, nodes=nodes, period=period).custom_hourly_seasonal_diurnal_pattern()
         print("Done!")
     
-    elif args.sourcename == "memory":
-        print("Please wait, as we are analyzing %s..." % (args.sourcename))
-       
-        print("Done!")
-
-    elif args.sourcename == "surfsara":
-        print("Please wait, as we are analyzing %s..." % (args.sourcename))
+    # Default covid vs non-covid analysis
+    else: 
         
-
         print("Done!")
 
     exit(0)

@@ -29,10 +29,12 @@ class ParseArgument:
                             action="store", type=self.get_datetime, dest="periodname", default="FULL", nargs=1, required=False,
                             help="Select the periods you would like to analyze.")
 
-        self.__parser.add_argument("-s", "--source", 
-                            action="store", type=str, dest="sourcename", choices=['cpu', 'gpu', 'memory', 'disk', 'surfsara'], 
+        self.__parser.add_argument("-m", "--metric", 
+                            action="store", type=str, dest="metricname", 
                             required=True, 
-                            help="Select the node source you would like to analyze.")
+                            help="Select the metric you would like to analyze.")
+
+        
 
         self.__args = self.__parser.parse_args()
 
