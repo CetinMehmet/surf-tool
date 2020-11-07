@@ -139,6 +139,22 @@ class GraphType:
 
         return rack_nodes
 
+    def __construct_daily_montly_plots(self, ax, title=None, ylabel=None):
+        ax.set_ylim(0, )
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+        
+        xcoords = [0] + [xcoord for xcoord in range(23, WEEK, DAY)]
+        for xc in xcoords:
+            ax.axvline(x=xc, color="gray", lw=0.5)
+
+    def __construct_hourly_montly_plots(self, ax, ylabel, title):
+        ax.set_ylim(0, )
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+
     def figure_daily_per_seasonal(
         self, df_cpu_dic, df_gpu_dic, shareX=True, xlabel=None, ylabel=None, title_cpu=None, title_gpu=None, savefig_title=None
     ):
@@ -168,22 +184,6 @@ class GraphType:
         # plt.show()
         plt.pause(0.0001)
 
-
-    def __construct_daily_montly_plots(self, ax, title=None, ylabel=None):
-        ax.set_ylim(0, )
-        ax.set_title(title)
-        ax.set_ylabel(ylabel)
-        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
-        
-        xcoords = [0] + [xcoord for xcoord in range(23, WEEK, DAY)]
-        for xc in xcoords:
-            ax.axvline(x=xc, color="gray", lw=0.5)
-
-    def __construct_hourly_montly_plots(self, ax, ylabel, title):
-        ax.set_ylim(0, )
-        ax.set_title(title)
-        ax.set_ylabel(ylabel)
-        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
 
     def figure_daily_per_monthly(self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title):
 
@@ -266,20 +266,53 @@ class GraphType:
         plt.show()
         plt.pause(0.0001)
     
-    def entire_period_analysis(self, df_cpu, df_gpu, ylabel=None, title=None, savefig_title=None):
+    def entire_period_analysis(self, df_dict, ylabel=None, title=None, savefig_title=None):
 
         _, (ax) = plt.subplots( figsize=(18,10))
+        df_keys = []
 
-        # ax.yaxis.offsetText.set_visible(False)
-        offset = ax.yaxis.get_offset_text()
-        ax.set_ylabel(ylabel + " " + offset.get_text())
+        # Get the df keys passed
+        for k in df_dict:
+            if df_dict[k] != None:
+                df_keys.append(k)
 
-        ax.plot(df_cpu, label="cpu", color="blue")
-        ax.plot(df_gpu, label="gpu", color="red")
+
+        # Nodes specified: Custom nodes; Custom period
+        if 'df_custom' in df_keys:
+            df = df_dict['df_custom'][0]
+            df.sort_index(inplace=True)
+
+            for i in range(len(df.columns)):
+                # Must remove the brackets by getting [0] of list
+                curr_node = df.iloc[:, i:i+1]
+                ax.plot(curr_node, label=curr_node.columns[0], color=COLORS[i])
+
+        # Custom period; nodes are default CPU vs GPU
+        elif 'df_cpu' in df_keys:
+            df_cpu = df_dict['df_cpu'][0]
+            df_gpu = df_dict['df_gpu'][0]
+
+            # Pass the mean of the nodes
+            df_cpu_mean = df_cpu.mean(axis=1)
+            df_gpu_mean = df_gpu.mean(axis=1)
+
+            ax.plot(df_cpu_mean, label="CPU", color=COLORS[0])
+            ax.plot(df_gpu_mean, label="GPU", color=COLORS[1])
+
+        # Period not specified
+        elif 'df_covid' in df_keys:
+            print("Not possible for this analysis type")
+
+        # Nodes not specified
+        elif 'df_cpu_covid' in df_keys:
+            print("Not possible for this analysis type")
+       
+        
+        # Set other features of plot
         ax.set_ylim(0, )
         ax.set_xlabel("Time")
         ax.set_title(title)
-        ax.legend(loc="lower right", fontsize=18)
+        ax.legend(loc="upper right", fontsize=18)
         ax.set_xticklabels(labels=self.__get_converted_xticks(ax))
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
@@ -295,7 +328,7 @@ class GraphType:
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
-        # plt.show()
+        plt.show()
         plt.pause(0.0001)
         
 
@@ -324,5 +357,133 @@ class GraphType:
         plt.show()
 
 
+    def custom_daily_seasonal_diurnal_pattern(self, df_dict, savefig_title, title, ylabel, period):
 
+        def get_time_df(df):
+            df["dt"] = pd.to_datetime(df.index, utc=True, unit="s")
+            df["hour"] = df["dt"].dt.hour
+            df["day"] = df["dt"].apply(lambda x: x.weekday())
+
+            df = df.groupby(["day", "hour"]).mean()
+            df.index = [hour for hour in range(0, 24*7)]
+            return df
+
+        df_keys = []
+        _, ax = plt.subplots()
+
+        # Get the df keys passed
+        for k in df_dict:
+            if df_dict[k] != None:
+                df_keys.append(k)
+
+
+        # Nodes specified: Custom nodes; Custom period
+        if 'df_custom' in df_keys:
+            df = df_dict['df_custom'][0]
+            df.sort_index(inplace=True)
+
+            df = get_time_df(df)
+            
+            for i in range(len(df.columns)):
+                # Must remove the brackets by getting [0] of list
+                curr_node = df.iloc[:, i:i+1]
+                ax.plot(curr_node, label=curr_node.columns[0], color=COLORS[i], marker=MARKERS[i])
+
+            title += str(" custom nodes")
+
+        # Custom period; nodes are default CPU vs GPU
+        elif 'df_cpu' in df_keys:
+            df_cpu = df_dict['df_cpu'][0]
+            df_gpu = df_dict['df_gpu'][0]
+
+            df_cpu = get_time_df(df_cpu)
+            df_gpu = get_time_df(df_gpu)
+
+            df_cpu = df_cpu.aggregate(func=sum, axis=1)
+            df_gpu = df_gpu.aggregate(func=sum, axis=1)
+
+            ax.plot(df_cpu, label="CPU", color=COLORS[2], marker=MARKERS[2])
+            ax.plot(df_gpu, label="GPU", color=COLORS[3], marker=MARKERS[3])
+
+            title += " CPU vs GPU nodes"
+
+        title += " from " + str(period[0].strftime("%Y-%m-%d") + " to " + period[1].strftime("%Y-%m-%d"))
+
+
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel("Days")
+        ax.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
+        ax.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+        ax.legend(loc="upper right")
+
+        xcoords = [0] + [xcoord for xcoord in range(23, WEEK, DAY)]
+        for xc in xcoords:
+            ax.axvline(x=xc, color="gray", lw=0.5)
+        
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
+        plt.show()
+        plt.pause(0.0001)
+
+
+    def custom_hourly_seasonal_diurnal_pattern(self, df_dict, savefig_title, title, ylabel, period):
+
+        def get_time_df(df):
+            df["dt"] = pd.to_datetime(df.index, utc=True, unit="s")
+            df["hour"] = df["dt"].dt.hour
+
+            df = df.groupby("hour").mean()
+            return df
+
+        df_keys = []
+        _, ax = plt.subplots()
+
+        # Get the df keys passed
+        for k in df_dict:
+            if df_dict[k] != None:
+                df_keys.append(k)
+
+
+        # Nodes specified: Custom nodes; Custom period
+        if 'df_custom' in df_keys:
+            df = df_dict['df_custom'][0]
+            df.sort_index(inplace=True)
+
+            df = get_time_df(df)
+            
+            for i in range(len(df.columns)):
+                # Must remove the brackets by getting [0] of list
+                curr_node = df.iloc[:, i:i+1]
+                ax.plot(curr_node, label=curr_node.columns[0], color=COLORS[i], marker=MARKERS[i])
+
+            title += str(" custom nodes")
+
+        # Custom period; nodes are default CPU vs GPU
+        elif 'df_cpu' in df_keys:
+            df_cpu = df_dict['df_cpu'][0]
+            df_gpu = df_dict['df_gpu'][0]
+
+            df_cpu = get_time_df(df_cpu)
+            df_gpu = get_time_df(df_gpu)
+
+            df_cpu = df_cpu.aggregate(func=sum, axis=1)
+            df_gpu = df_gpu.aggregate(func=sum, axis=1)
+
+            ax.plot(df_cpu, label="CPU", color=COLORS[2], marker=MARKERS[2])
+            ax.plot(df_gpu, label="GPU", color=COLORS[3], marker=MARKERS[3])
+
+            title += " CPU vs GPU nodes aggregated values "
+
+        title += " from " + str(period[0].strftime("%Y-%m-%d") + " to " + period[1].strftime("%Y-%m-%d"))
+
+
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel("Hours")
+        ax.legend(loc="upper right")
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", savefig_title + ".pdf"), dpi=100) 
+        plt.show()
+        plt.pause(0.0001)
 

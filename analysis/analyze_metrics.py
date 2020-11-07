@@ -9,6 +9,8 @@ import calendar
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
+sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
+
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
@@ -17,6 +19,7 @@ from cpu import Cpu
 from memory import Memory
 from disk import Disk
 from surfsara import Surfsara
+from custom_analysis import CustomAnalysis
 
 """
     Analyze the following metrics:
@@ -71,12 +74,23 @@ class Metric:
         self.gpu_parquets = gpu_parquets
         self.new_node_parquets = new_node_parquets
 
-    def cpu(self, parquet):
-        return Cpu(node_parquets=self.new_node_parquets, parquet=parquet) # New dataset is tested
+    def cpu(self, parquet, **kargs):
+        parquet_total = kargs['parquet_total']
+        nodes = kargs['nodes']
+        periods = kargs['periods']
+
+        return Cpu(node_parquets=self.new_node_parquets, parquet=parquet, parquet_total=parquet_total, nodes=nodes, periods=periods) # New dataset is tested
+    
+    def custom(self, parquet, **kargs):
+        parquet_total = kargs['parquet_total']
+        nodes = kargs['nodes']
+        period = kargs['period']
+
+        return CustomAnalysis(node_parquets=self.new_node_parquets, parquet=parquet, parquet_total=parquet_total, nodes=nodes, period=period) # New dataset is tested
 
     def disk(self, parquet, *args):
         if args:
-            return Disk(self.node_parquets, parquet, args[0])
+            return Disk(self.node_parquets, parquet, args[0]) # second metric
         else:
             return Disk(self.node_parquets, parquet)
 

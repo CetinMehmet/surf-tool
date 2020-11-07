@@ -10,12 +10,23 @@ class ParseArgument:
                             action="store", type=str, dest="path", required=True,
                             help="The path to the dataset")
 
-        # self.__parser.add_argument("--node",
-        #                     action="store", type=str, dest="nodename", choices=["cpu", "gpu"], required=True,
-        #                     help="Select the type of node you would like to analyze.")
+        self.__parser.add_argument("-n", "--nodes",
+                            action="store", type=self.get_nodes, dest="nodenames", default=None, required=False,
+                            help="""Please choose nodes from the following racks:\n
+                            Generic racks: 
+                                'r1899', 'r1898', 'r1897', 
+                                'r1896', 'r1903', 'r1902', 'r1128', 
+                                'r1134', 'r1133', 'r1132'\n
+                            ML racks: 
+                                'r1123', 'r1122', 'r1387',
+                                'r1386', 'r1385', 'r1384', 
+                                'r1391', 'r1390', 'r1389',
+                                'r1379'
+                                """
+                            )
                         
         self.__parser.add_argument("-p", "--period",
-                            action="store", type=str, dest="period", default="FULL", nargs='*',
+                            action="store", type=self.get_datetime, dest="periodname", default="FULL", nargs=1, required=False,
                             help="Select the periods you would like to analyze.")
 
         self.__parser.add_argument("-s", "--source", 
@@ -25,29 +36,41 @@ class ParseArgument:
 
         self.__args = self.__parser.parse_args()
 
-        if len(self.__args.period) > 2:
-            print("periods can't be more than 2 arguments")
-            sys.exit(1)
 
-        # Convert str to seperate dates in the format of YYYY-MM-DD
-        elif len(self.__args.period) == 2:
-            date_obj_1 = self.__convert_datetime(self.__args.period[0])
-            date_obj_2 = self.__convert_datetime(self.__args.period[1])
+    def get_datetime(self, string):
+        if string == "FULL" or string == "":
+            return string
 
-            # Find the start and end time
-            start_time = min(date_obj_1, date_obj_2)
-            end_time = max(date_obj_1, date_obj_2)
+        dates = string.split(",")
+        date_obj_1 = self.__convert_datetime(dates[0])
+        date_obj_2 = self.__convert_datetime(dates[1])
 
-            # Reassign 'period' with datetime type
-            self.__args.period[0] = start_time
-            self.__args.period[1] = end_time
+        # Find the start and end time
+        start_time = min(date_obj_1, date_obj_2)
+        end_time = max(date_obj_1, date_obj_2)
 
-        # If it is COVID, FULL, or NON-COVID
-        elif len(self.__args.period) == 1:
-            self.__modify_choices(self.__parser, "period", ["FULL", "COVID", "NON-COVID"])
+        # Reassign 'period' with datetime type
+        return [start_time, end_time]
 
+
+    def get_nodes(self, string):
+        if "," in string:
+            # Split from commas, remove them and strip the elements to remove whitespace
+            nodes = list(map(lambda x : x.strip(), string.split(",")))
         else:
-            print("Warning: default period is the 'FULL' period")
+            # Split by whitespace and filter the empty strings from list
+            nodes = list(filter(lambda x: x != "", string.split(" ")))
+        
+        # Accept no more than 6 nodes
+        if len(nodes) > 6:
+            print("Error: No more than 6 nodes can be investigated at once.")
+            exit(1)
+
+        return nodes
+
+
+    def get_args(self):
+        return self.__args
 
     def __modify_choices(self, parser, dest, choices):
         for action in parser._actions:
@@ -68,8 +91,6 @@ class ParseArgument:
             print("Date must be formatted as 'yyyy-mm-dd'.")
             sys.exit(1)
 
-    def get_args(self):
-        return self.__args
 
 
     

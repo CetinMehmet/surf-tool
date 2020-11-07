@@ -41,32 +41,43 @@ def main():
     new_node_parquets, node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
     metric = Metric(new_node_parquets, node_parquets, gpu_parquets)
 
+    # Get start and endtime
+    period = args.periodname[0]
+
+    # Get nodes
+    nodes = args.nodenames
+
+    # Default analysis
+    if period == "" and nodes == []:
+        pass
+
+
+    # Custom analysis
+    else:
+        pass
 
     if args.sourcename == "cpu": # Metrics: procs_running, procs_blocked
         print("Please wait, as we are analyzing...")
-        metric.cpu("node_procs_running").daily_seasonal_diurnal_pattern() 
+       
+        # metric.custom("node_procs_running", parquet_total=None, nodes=nodes, period=period).entire_period_analysis()
+        # metric.custom("node_load1", parquet_total=None, nodes=nodes, period=period).custom_daily_seasonal_diurnal_pattern()
+        metric.custom("node_load1", parquet_total=None, nodes=nodes, period=period).custom_hourly_seasonal_diurnal_pattern()
         print("Done!")
        
     elif args.sourcename == "disk": #
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        metric.disk("node_disk_bytes_written").daily_seasonal_diurnal_pattern() 
-        # metric.disk("node_disk_bytes_written", "node_disk_write_time_ms").entire_period_analysis() 
-        metric.disk("node_disk_bytes_read").daily_seasonal_diurnal_pattern() 
-        # metric.disk("node_disk_bytes_read", "node_disk_read_time_ms").entire_period_analysis() 
+        
         print("Done!")
     
     elif args.sourcename == "memory":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        metric.memory("node_memory_MemFree", "node_memory_MemTotal").entire_period_analysis()
-        # metric.memory("node_memory_MemFree", "node_memory_MemTotal").CDF_memory_util()
-        # metric.memory("node_memory_MemFree", "node_memory_MemTotal").hourly_seasonal_diurnal_pattern()
+       
         print("Done!")
 
     elif args.sourcename == "surfsara":
         print("Please wait, as we are analyzing %s..." % (args.sourcename))
-        # metric.surfsara("surfsara_power_usage").rack_analysis()
-        metric.surfsara("surfsara_power_usage").hourly_monthly_diurnal_pattern()
-        metric.surfsara("surfsara_power_usage").hourly_seasonal_diurnal_pattern()
+        
+
         print("Done!")
 
     exit(0)

@@ -15,22 +15,43 @@ from generate_dataset_page import GeneratePage
 
 class Cpu(object):
 
-    def __init__(self, node_parquets, parquet):
+    def __init__(self, node_parquets, parquet, **kargs):
         from analyze_metrics import Metric # Prevents circular error
 
         self.node_parquets = node_parquets
         self.parquet = parquet  
+        self.parquet_total = kargs['parquet_total'] if kargs['parquet_total'] else print("No seconds parquet passed")
+        self.nodes = kargs['nodes'] if kargs['nodes'] else print("No nodes specified")
+        self.period = kargs['period'] if kargs['period'] else print("No period specified, full taken")
+
 
         # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
         df.sort_index(inplace=True)
 
-        # Split df to cpu and gpu nodes
-        self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
+        if self.nodes != None: 
+            df = df.loc[:, self.nodes] # Get nodes
 
-        # Split to df according to covid non covid
-        self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
-        self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
+            if self.period is None: # Take full period
+                self.df_covid, self.df_non_covid = ParseMetric().covid_non_covid(df)
+
+            else: # Custom period
+                self.df_custom = ParseMetric().user_period_split(df)
+        
+        # Custom nodes aren't specified, so we take the whole node set
+        else: 
+            # Split df to cpu and gpu nodes
+            self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
+
+            if self.period is None: # Take full period
+                # Split to df according to covid non covid
+                self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
+                self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
+
+            else: # Custom period split
+                self.df_cpu = ParseMetric().user_period_split(self.df_cpu)
+                self.df_gpu = ParseMetric().user_period_split(self.df_cpu)
+            
 
         self.title, self.ylabel, self.savefig_title = "", "", ""
         if parquet == "node_procs_running":

@@ -136,6 +136,8 @@ class DiurnalAnalysis:
             savefig_title=savefig_title
         )
     
+
+
     def hourly_monthly_diurnal_pattern(
         self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title
     ):
