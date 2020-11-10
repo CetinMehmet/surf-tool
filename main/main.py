@@ -38,26 +38,31 @@ def main():
 
     # Get the dataset path, parse the data to 2 dictionaries containing node and gpu parquet paths
     dataset_path = get_dataset_path(args.path)
-    new_node_parquets, node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
-    metric = Metric(new_node_parquets, node_parquets, gpu_parquets)
+    node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
+    metric = Metric(node_parquets, gpu_parquets)
 
     # Get start and endtime
     period = args.periodname[0]
     nodes = args.nodenames
+    racks = args.racknames
     metric_parquet = args.metricname
     metric_name = " ".join(metric_parquet.split("_")[1:])
-    custom_analysis = False if period == "" and nodes == [] else True
+    custom_analysis = False if period == "" and nodes == [] and racks == [] else True
 
-    if custom_analysis: # Metrics: procs_running, procs_blocked
-        print("Please wait, as we are analyzing %s..." % metric_name)
-        metric.custom(metric_parquet, parquet_total=None, nodes=nodes, period=period).custom_hourly_seasonal_diurnal_pattern()
-        print("Done!")
-    
+    if nodes != [] and racks != []:
+        print("Racks and nodes can't be analyzed at once.")
+        exit(1)
+
+    print("Please wait, as we are analyzing %s..." % metric_name)
+    if custom_analysis: 
+        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).entire_period_analysis()
+        metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
+        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).daily_seasonal_diurnal_pattern()
     # Default covid vs non-covid analysis
     else: 
-        
-        print("Done!")
-
+        pass
+    
+    print("Done!")
     exit(0)
 
 

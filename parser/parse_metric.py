@@ -66,6 +66,17 @@ class ParseMetric:
         return df[cpu_nodes], df[gpu_nodes]
 
     @staticmethod
+    def get_rack_nodes(df, my_rack):
+        rack_nodes = set()
+
+        for node in df.columns:
+            rack = node.split("n")[0]
+            if rack == my_rack:
+                rack_nodes.add(node)
+
+        return df.loc[: , rack_nodes]
+
+    @staticmethod
     def nr_cores(self):
         """
         Break down number of cores for both CPU and GPU

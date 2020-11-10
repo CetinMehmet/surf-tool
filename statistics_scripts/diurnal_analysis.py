@@ -101,13 +101,11 @@ class DiurnalAnalysis:
 
     def daily_monthly_diurnal_pattern(self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title):
 
-        GraphType().figure_daily_per_monthly(
+        GraphType(title=title, savefig_title=savefig_title).figure_daily_per_monthly(
             df_cpu=df_cpu,
             df_gpu=df_gpu,
             month_dic=month_dic,
-            savefig_title=savefig_title, 
-            ylabel=ylabel, 
-            title=title
+            ylabel=ylabel
         )
 
     def daily_seasonal_diurnal_pattern(
@@ -121,7 +119,7 @@ class DiurnalAnalysis:
         df_gpu_non_covid = self.__get_daily_seasonal_df(df_gpu_dic['non_covid'])
 
         #TODO: Use functions after this part
-        GraphType().figure_daily_per_seasonal (
+        GraphType(title=title, savefig_title=savefig_title).figure_daily_per_seasonal (
             df_cpu_dic={
                 'covid': df_cpu_covid,
                 'non_covid': df_cpu_non_covid
@@ -131,23 +129,18 @@ class DiurnalAnalysis:
                 'non_covid': df_gpu_non_covid
             },
             shareX=shareX, ylabel=ylabel, xlabel= "Days",
-            title_cpu=title + " | CPU nodes",
-            title_gpu=title + " | GPU nodes",
-            savefig_title=savefig_title
         )
     
 
 
     def hourly_monthly_diurnal_pattern(
-        self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title
+        self, df_cpu, df_gpu, month_dic, ylabel, savefig_title, title
     ):
-        GraphType().figure_hourly_monthly(
+        GraphType(savefig_title,title).figure_hourly_monthly(
             df_cpu=df_cpu,
             df_gpu=df_gpu,
             month_dic=month_dic,
-            savefig_title=savefig_title, 
-            ylabel=ylabel, 
-            title=title
+            ylabel=ylabel
         )
 
 

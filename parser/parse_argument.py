@@ -24,7 +24,21 @@ class ParseArgument:
                                 'r1379'
                                 """
                             )
-                        
+        self.__parser.add_argument("-r", "--racks",
+                            action="store", type=self.get_racks, dest="racknames", default=None, required=False,
+                            help="""Please choose nodes from the following racks:\n
+                            Generic racks: 
+                                'r1899', 'r1898', 'r1897', 
+                                'r1896', 'r1903', 'r1902', 'r1128', 
+                                'r1134', 'r1133', 'r1132'\n
+                            ML racks: 
+                                'r1123', 'r1122', 'r1387',
+                                'r1386', 'r1385', 'r1384', 
+                                'r1391', 'r1390', 'r1389',
+                                'r1379'
+                                """
+                            )
+
         self.__parser.add_argument("-p", "--period",
                             action="store", type=self.get_datetime, dest="periodname", default="FULL", nargs=1, required=False,
                             help="Select the periods you would like to analyze.")
@@ -41,7 +55,7 @@ class ParseArgument:
 
     def get_datetime(self, string):
         if string == "FULL" or string == "":
-            return string
+            return string.upper()
 
         dates = string.split(",")
         date_obj_1 = self.__convert_datetime(dates[0])
@@ -63,12 +77,28 @@ class ParseArgument:
             # Split by whitespace and filter the empty strings from list
             nodes = list(filter(lambda x: x != "", string.split(" ")))
         
-        # Accept no more than 6 nodes
-        if len(nodes) > 6:
-            print("Error: No more than 6 nodes can be investigated at once.")
+        # Accept no more than 4 nodes
+        if len(nodes) > 4:
+            print("Error: No more than 4 nodes can be investigated at once.")
             exit(1)
 
         return nodes
+
+    def get_racks(self, string):
+        # if "," in string:
+        #     # Split from commas, remove them and strip the elements to remove whitespace
+        #     racks = list(map(lambda x : x.strip(), string.split(",")))
+        # else:
+        #     # Split by whitespace and filter the empty strings from list
+        #     racks = list(filter(lambda x: x != "", string.split(" ")))
+        
+        # # Accept no more than 2 racks
+        # if len(racks) > 2:
+        #     print("Error: No more than 4 nodes can be investigated at once.")
+        #     exit(1)
+
+        return string
+
 
 
     def get_args(self):
@@ -90,7 +120,7 @@ class ParseArgument:
             return date_obj
 
         except ValueError:
-            print("Date must be formatted as 'yyyy-mm-dd'.")
+            print("Specify date as 'yyyy-mm-dd' or get 'full' period.")
             sys.exit(1)
 
 

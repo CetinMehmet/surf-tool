@@ -1,5 +1,5 @@
 import numpy as np
-import sys
+import sys, json
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
@@ -13,58 +13,35 @@ import pandas as pd
 from generate_dataset_page import GeneratePage
 
 
-class Cpu(object):
+class DefaultAnalysis(object):
 
     def __init__(self, node_parquets, parquet, **kargs):
         from analyze_metrics import Metric # Prevents circular error
 
         self.node_parquets = node_parquets
         self.parquet = parquet  
-        self.parquet_total = kargs['parquet_total'] if kargs['parquet_total'] else print("No seconds parquet passed")
-        self.nodes = kargs['nodes'] if kargs['nodes'] else print("No nodes specified")
-        self.period = kargs['period'] if kargs['period'] else print("No period specified, full taken")
-
+        self.second_parquet = kargs['second_parquet'] if kargs['second_parquet'] else print("No second parquet passed")
+    
 
         # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
         df.sort_index(inplace=True)
-
-        if self.nodes != None: 
-            df = df.loc[:, self.nodes] # Get nodes
-
-            if self.period is None: # Take full period
-                self.df_covid, self.df_non_covid = ParseMetric().covid_non_covid(df)
-
-            else: # Custom period
-                self.df_custom = ParseMetric().user_period_split(df)
-        
         # Custom nodes aren't specified, so we take the whole node set
-        else: 
-            # Split df to cpu and gpu nodes
-            self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
 
-            if self.period is None: # Take full period
-                # Split to df according to covid non covid
-                self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
-                self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
+        self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
 
-            else: # Custom period split
-                self.df_cpu = ParseMetric().user_period_split(self.df_cpu)
-                self.df_gpu = ParseMetric().user_period_split(self.df_cpu)
-            
+        # Split to df according to covid non covid
+        self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
+        self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
 
-        self.title, self.ylabel, self.savefig_title = "", "", ""
-        if parquet == "node_procs_running":
-            self.title = "Total number of running procs"
-            self.ylabel = "Running procs"
-            self.savefig_title = "cpu_running_procs"
+          # Load json file
+        with open("/Users/cetinmehmet/Desktop/surfsara-tool/analysis/metric.json", 'r') as f:
+            metric_json = json.load(f)
 
-        elif parquet == "node_procs_blocked":
-            self.title = "Total number of blocked procs"
-            self.ylabel = "Blocked procs"
-            self.savefig_title = "cpu_blocked_procs"
-
-        self.generate_page = GeneratePage("cpu")
+        # Assign the components of the plot
+        self.title = metric_json[parquet]['title']
+        self.savefig_title = metric_json[parquet]['savefig_title']
+        self.ylabel = metric_json[parquet]['ylabel']
 
 
     def get_meta_data(self):
@@ -146,9 +123,9 @@ class Cpu(object):
         self.df_cpu.index = pd.to_datetime(self.df_cpu.index, utc=True, unit="s")
         self.df_gpu.index = pd.to_datetime(self.df_gpu.index, utc=True, unit="s")
 
-        # Get the sum of all the nodes
-        self.df_cpu = pd.DataFrame(self.df_cpu).aggregate(func=sum, axis=1)
-        self.df_gpu = pd.DataFrame(self.df_gpu).aggregate(func=sum, axis=1)
+        # Get the mean of all the node values
+        self.df_cpu = pd.DataFrame(self.df_cpu).mean(axis=1)
+        self.df_gpu = pd.DataFrame(self.df_gpu).mean(axis=1)
 
         GraphType().entire_period_analysis(
             df_cpu=self.df_cpu, df_gpu=self.df_gpu, 
@@ -159,6 +136,20 @@ class Cpu(object):
 
         self.generate_page.launch(self.title, 'entire_period_' + self.savefig_title, self.parquet)
 
+    # TODO: Add this to custom analysis also
+    def CDF_plot(self):
+        GraphType().CDF_plot(
+            ax_cpu_dic = {
+                'covid': self.df_cpu_covid.mean(),
+                'non-covid': self.df_cpu_non_covid.mean()
+            },
+            ax_gpu_dic = {
+                'covid': self.df_gpu_covid.mean(),
+                'non-covid': self.df_gpu_non_covid.mean()
+            },
+            savefig_title = "mean_" + self.savefig_title
+        )
+
     def all_analysis(self):
         self.daily_seasonal_diurnal_pattern()
         self.daily_monthly_diurnal_pattern()
@@ -166,5 +157,6 @@ class Cpu(object):
         self.hourly_monthly_diurnal_pattern()
         self.rack_analysis()
         self.entire_period_analysis()
+        self.CDF_plot()
         
 

@@ -15,11 +15,10 @@ sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
 from graph_type import GraphType
-from cpu import Cpu
 from memory import Memory
 from disk import Disk
-from surfsara import Surfsara
 from custom_analysis import CustomAnalysis
+from default_analysis import DefaultAnalysis
 
 """
     Analyze the following metrics:
@@ -69,24 +68,17 @@ TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 
 class Metric:
 
-    def __init__(self, new_node_parquets: dict, node_parquets: dict, gpu_parquets: dict):
+    def __init__(self, node_parquets: dict, gpu_parquets: dict):
         self.node_parquets = node_parquets
-        self.gpu_parquets = gpu_parquets
-        self.new_node_parquets = new_node_parquets
 
-    def cpu(self, parquet, **kargs):
-        parquet_total = kargs['parquet_total']
-        nodes = kargs['nodes']
-        periods = kargs['periods']
-
-        return Cpu(node_parquets=self.new_node_parquets, parquet=parquet, parquet_total=parquet_total, nodes=nodes, periods=periods) # New dataset is tested
-    
     def custom(self, parquet, **kargs):
-        parquet_total = kargs['parquet_total']
+        second_parquet = kargs['second_parquet']
         nodes = kargs['nodes']
         period = kargs['period']
-
-        return CustomAnalysis(node_parquets=self.new_node_parquets, parquet=parquet, parquet_total=parquet_total, nodes=nodes, period=period) # New dataset is tested
+        racks = kargs['racks']
+        return CustomAnalysis(node_parquets=self.node_parquets, 
+                    parquet=parquet, second_parquet=second_parquet, 
+                    racks=racks, nodes=nodes, period=period) 
 
     def disk(self, parquet, *args):
         if args:
@@ -97,8 +89,9 @@ class Metric:
     def memory(self, parquet, *args):
         return Memory(self.node_parquets, parquet, args[0])
 
-    def surfsara(self, parquet):
-        return Surfsara(self.node_parquets, parquet)
+    def default(self, parquet, **kargs):
+        second_parquet = kargs['second_parquet']
+        return DefaultAnalysis(self.node_parquets, parquet, second_parquet=second_parquet)
 
     @staticmethod
     def __get_parquet_path(metric, parq_dic):

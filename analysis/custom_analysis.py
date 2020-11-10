@@ -1,5 +1,5 @@
 import numpy as np
-import sys
+import sys, json
 
 sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
@@ -20,21 +20,35 @@ class CustomAnalysis(object):
 
         self.node_parquets = node_parquets
         self.parquet = parquet  
-        self.parquet_total = kargs['parquet_total'] if kargs['parquet_total'] else print("Second parquet not passed")
+        self.second_parquet = kargs['second_parquet'] if kargs['second_parquet'] else print("Second parquet not passed")
+        self.racks = kargs['racks'] if kargs['racks'] else print("No racks specified")
         self.nodes = kargs['nodes'] if kargs['nodes'] else print("No nodes specified")
-        self.period = kargs['period'] if kargs['period'] else print("No period specified, full taken")
+        self.period = kargs['period'] if kargs['period'] else print("No period specified, covid periods taken")
 
-         # Get parquet data and load to df
+
+        # Load json file
+        with open("/Users/cetinmehmet/Desktop/surfsara-tool/analysis/metric.json", 'r') as f:
+            metric_json = json.load(f)
+
+        # Assign the components of the plot
+        self.title = metric_json[parquet]['title']
+        self.savefig_title = metric_json[parquet]['savefig_title']
+        self.ylabel = metric_json[parquet]['ylabel']
+
+        # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
         df.sort_index(inplace=True)
 
         self.df_dict = {
-            # Default period, custom nodes
+            # Default period, custom nodes (or racks)
             'df_covid': None,
             'df_non_covid': None,
+            'df_rack_covid': None,
+            'df_rack_non_covid': None,
 
-            # Custom period, custom nodes
+            # Custom period (or FULL), custom nodes (or racks)
             'df_custom': None,
+            'df_rack': None,
             
             # Default period, no nodes specified
             'df_cpu_covid': None,
@@ -48,6 +62,7 @@ class CustomAnalysis(object):
         }
 
         if self.nodes != None: 
+            self.savefig_title += self.nodes[0] + "_" # proper naming required for saving plots
             df = df.loc[:, self.nodes] # Get nodes
 
             if self.period is None: # Take full period
@@ -56,20 +71,50 @@ class CustomAnalysis(object):
                 # Adding dfs to lists to prevent "value ambigous error"
                 self.df_dict['df_covid'] =  [self.df_covid] 
                 self.df_dict['df_non_covid'] = [self.df_non_covid]
-         
+
+            elif self.period == "FULL":
+                df_custom = df # Get full period without covid vs non-covid
+                self.df_dict['df_custom'] = [df_custom]
 
             else: # Custom period
-                self.df_custom = ParseMetric().user_period_split(df, self.period[0], self.period[1])
+                df_custom = ParseMetric().user_period_split(df, self.period[0], self.period[1])
 
                 # Adding dfs to lists to prevent "value ambigous error"
-                self.df_dict['df_custom'] = [self.df_custom]
+                self.df_dict['df_custom'] = [df_custom]
         
-        # Custom nodes aren't specified, so we take the whole node set
+        # Custom racks are specified
+        elif self.racks != None and self.nodes == None:
+            self.savefig_title += self.racks + "_"
+            df_rack = ParseMetric().get_rack_nodes(df, self.racks) # Get rack nodes
+
+            if self.period is None: # Split covid vs non-covid: default analysis
+                
+                df_rack_covid, df_rack_non_covid = ParseMetric().covid_non_covid(df_rack)
+
+                # Adding dfs to lists to prevent "value ambigous error"
+                self.df_dict['df_rack_covid'] =  [df_rack_covid] 
+                self.df_dict['df_rack_non_covid'] = [df_rack_non_covid]
+                self.savefig_title += "covid_"
+
+            elif self.period == "FULL":
+                self.df_dict['df_rack'] = [df_rack]
+                self.savefig_title += "full_"
+
+            else: # Custom period
+                df_custom = ParseMetric().user_period_split(df_rack, self.period[0], self.period[1])
+                self.savefig_title += "period_"
+                # Adding dfs to list to prevent "value ambigous error"
+                self.df_dict['df_rack'] = [df_custom]
+
+
+        # Custom nodes or racks aren't specified, so we take the whole node set
         else: 
+            self.savefig_title += self.racks + "all_nodes_"
+
             # Split df to cpu and gpu nodes
             self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
 
-            if self.period is None: # Take full period
+            if self.period is None: # Take full period: covid vs non-covid
                 # Split to df according to covid non covid
                 self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
                 self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
@@ -81,60 +126,43 @@ class CustomAnalysis(object):
                     'df_gpu_covid': [self.df_gpu_covid], 
                     'df_gpu_non_covid': [self.df_gpu_non_covid]})
 
-            else: # Custom period split
-                self.df_cpu = ParseMetric().user_period_split(self.df_cpu, self.period[0], self.period[1])
-                self.df_gpu = ParseMetric().user_period_split(self.df_gpu, self.period[0], self.period[1])
+                self.savefig_title += "covid_"
             
-                # Adding dfs to lists to prevent "value ambigous error"
+            elif self.period == "FULL": # Get full period without covid vs non-covid
                 self.df_dict['df_cpu'] =  [self.df_cpu]
                 self.df_dict['df_gpu'] = [self.df_gpu]
 
-        self.title, self.ylabel, self.savefig_title = "", "", ""
-        if parquet == "node_procs_running":
-            self.title = "Total number of running procs"
-            self.ylabel = "Running procs"
-            self.savefig_title = "cpu_running_procs"
+                self.savefig_title += "full_"
 
-        elif parquet == "node_procs_blocked":
-            self.title = "Total number of blocked procs"
-            self.ylabel = "Blocked procs"
-            self.savefig_title = "cpu_blocked_procs"
-
-        elif parquet == "node_load1":
-            self.title = "Load1"
-            self.ylabel = "Load1"
-            self.savefig_title = "load1"
-
+            else: # Custom period split
+                df_cpu = ParseMetric().user_period_split(self.df_cpu, self.period[0], self.period[1])
+                df_gpu = ParseMetric().user_period_split(self.df_gpu, self.period[0], self.period[1])
+            
+                # Adding dfs to lists to prevent "value ambigous error"
+                self.df_dict['df_cpu'] =  [df_cpu]
+                self.df_dict['df_gpu'] = [df_gpu]
 
     def get_meta_data(self):
         return self.title, self.savefig_title
 
-
-    def custom_daily_seasonal_diurnal_pattern(self):
-        GraphType().custom_daily_seasonal_diurnal_pattern(
+    def daily_seasonal_diurnal_pattern(self):
+        GraphType(savefig_title = self.savefig_title, 
+            title=self.title, period=self.period, ylabel=self.ylabel
+        ).custom_daily_seasonal_diurnal_pattern(
             df_dict=self.df_dict, 
-            savefig_title=self.savefig_title, 
-            title=self.title,
-            period=self.period,
-            ylabel=self.ylabel
         )
 
-    def custom_hourly_seasonal_diurnal_pattern(self):
-        GraphType().custom_hourly_seasonal_diurnal_pattern(
-            df_dict=self.df_dict, 
-            savefig_title=self.savefig_title, 
-            title=self.title,
-            period=self.period,
-            ylabel=self.ylabel
-        )
+    def hourly_seasonal_diurnal_pattern(self):
+        GraphType(savefig_title=self.savefig_title, 
+            title=self.title, period=self.period, ylabel=self.ylabel
+        ).custom_hourly_seasonal_diurnal_pattern(df_dict=self.df_dict)
 
     def entire_period_analysis(self):
-
         GraphType().entire_period_analysis(
             df_dict = self.df_dict, 
             ylabel=self.ylabel, 
             title=self.title, 
-            savefig_title="entire_period_" + self.savefig_title
+            savefig_title=self.savefig_title
         )
 
     # def all_analysis(self):
