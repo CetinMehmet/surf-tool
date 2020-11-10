@@ -341,6 +341,18 @@ class GraphType:
 
             self.title += str(" custom nodes")
 
+        # Nodes covid non covid
+        if 'df_covid' in df_keys:
+            df_covid = df_dict['df_covid'][0]
+            df_non_covid = df_dict['df_non_covid'][0]
+
+            df_covid = get_time_df(df_covid)
+            df_non_covid = get_time_df(df_non_covid)
+
+            for i in range(len(df_covid.columns)):
+                ax.plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[i], marker=MARKERS[i])
+                ax.plot(df_non_covid.iloc[:, i:i+1], label=df_non_covid.iloc[:, i:i+1].columns[0] + " non-covid", color=COLORS[i+2], marker=MARKERS[i+2])
+
         # Rack specified
         elif 'df_rack' in df_keys:
             df = df_dict['df_rack'][0]
@@ -428,6 +440,18 @@ class GraphType:
                 ax.plot(curr_node, label=curr_node.columns[0], color=COLORS[i], marker=MARKERS[i])
 
             self.title += str(" custom nodes")
+
+                # Nodes covid non covid
+        elif 'df_covid' in df_keys:
+            df_covid = df_dict['df_covid'][0]
+            df_non_covid = df_dict['df_non_covid'][0]
+
+            df_covid = get_time_df(df_covid)
+            df_non_covid = get_time_df(df_non_covid)
+
+            for i in range(len(df_covid.columns)):
+                ax.plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[i], marker=MARKERS[i])
+                ax.plot(df_non_covid.iloc[:, i:i+1], label=df_non_covid.iloc[:, i:i+1].columns[0] + " non-covid", color=COLORS[i+2], marker=MARKERS[i+2])
 
          # Rack specified
         elif 'df_rack' in df_keys:

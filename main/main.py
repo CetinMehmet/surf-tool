@@ -49,7 +49,7 @@ def main():
     metric_name = " ".join(metric_parquet.split("_")[1:])
     custom_analysis = False if period == "" and nodes == [] and racks == [] else True
 
-    if nodes != [] and racks != []:
+    if nodes != [] and racks != "":
         print("Racks and nodes can't be analyzed at once.")
         exit(1)
 
