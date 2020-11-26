@@ -7,7 +7,7 @@ sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
-from generate_graph import GenerateGraph
+from generate_default_graph import GenerateDefaultGraph
 from generate_table import GenerateTable
 import matplotlib.pyplot as plt 
 import pandas as pd
@@ -23,7 +23,6 @@ class DefaultAnalysis(object):
         self.parquet = parquet  
         self.second_parquet = kargs['second_parquet'] if kargs['second_parquet'] else print("No second parquet passed")
     
-
         # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
         df.sort_index(inplace=True)
@@ -41,15 +40,13 @@ class DefaultAnalysis(object):
 
         # Assign the components of the plot
         self.title = metric_json[parquet]['title']
-        self.savefig_title = metric_json[parquet]['savefig_title']
+        self.savefig_title = metric_json[parquet]['savefig_title'] + "default_"
         self.ylabel = metric_json[parquet]['ylabel']
-
 
     def get_meta_data(self):
         return self.title, self.savefig_title
 
     def daily_seasonal_diurnal_pattern(self, shareX=True):
-
         DiurnalAnalysis().daily_seasonal_diurnal_pattern(
             df_cpu_dic={'covid': self.df_cpu_covid, 
                         'non_covid': self.df_cpu_non_covid,
@@ -59,7 +56,7 @@ class DefaultAnalysis(object):
                 'non_covid': self.df_gpu_non_covid
             }, 
             shareX=True, title=self.title, ylabel=self.ylabel,
-            savefig_title='daily_seasonal_' + self.savefig_title
+            savefig_title=self.savefig_title + "daily_seasonal_diurnal"
         )
     
     def daily_monthly_diurnal_pattern(self):
@@ -67,13 +64,12 @@ class DefaultAnalysis(object):
             month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
-            savefig_title="daily_monthly_" + self.savefig_title, 
+            savefig_title=self.savefig_title + "daily_monthly_diurnal", 
             ylabel=self.ylabel, 
             title=self.title
         )
 
     def hourly_seasonal_diurnal_pattern(self, shareX=True):
-
         DiurnalAnalysis().hourly_seasonal_diurnal_pattern(
             df_cpu_dic={'covid': self.df_cpu_covid, 
                         'non_covid': self.df_cpu_non_covid,
@@ -83,7 +79,7 @@ class DefaultAnalysis(object):
                 'non_covid': self.df_gpu_non_covid
             }, 
             ylabel=self.ylabel, shareX=True, title=self.title, 
-            savefig_title='hourly_seasonal_' + self.savefig_title
+            savefig_title=self.savefig_title + "hourly_seasonal_diurnal"
         )
     
     def hourly_monthly_diurnal_pattern(self):
@@ -91,13 +87,13 @@ class DefaultAnalysis(object):
             month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
-            savefig_title="hourly_monthly_" + self.savefig_title, 
+            savefig_title=self.savefig_title + "hourly_monthly_diurnal", 
             ylabel=self.ylabel, 
             title=self.title
         )
 
     def rack_analysis(self):
-        GenerateGraph().figure_rack_analysis(
+        GenerateDefaultGraph().figure_rack_analysis(
             df_cpu_dic={
                 'covid': self.df_cpu_covid,
                 'non_covid': self.df_cpu_non_covid,
@@ -106,27 +102,16 @@ class DefaultAnalysis(object):
                 'covid': self.df_gpu_covid, 
                 'non_covid': self.df_gpu_non_covid
             }, 
-            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title
+            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis"
         )
 
     def entire_period_analysis(self):
-        # Format the index as dd/mm/yyyy
-        self.df_cpu.index = pd.to_datetime(self.df_cpu.index, utc=True, unit="s")
-        self.df_gpu.index = pd.to_datetime(self.df_gpu.index, utc=True, unit="s")
-
-        # Get the mean of all the node values
-        self.df_cpu = pd.DataFrame(self.df_cpu).mean(axis=1)
-        self.df_gpu = pd.DataFrame(self.df_gpu).mean(axis=1)
-
-        GenerateGraph().entire_period_analysis(
-            df_cpu=self.df_cpu, df_gpu=self.df_gpu, 
-            ylabel=self.ylabel, 
-            title=self.title, 
-            savefig_title="entire_period_" + self.savefig_title
-        )
+        GenerateDefaultGraph(
+            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "entire_period"
+        ).entire_period_analysis(df_cpu=self.df_cpu, df_gpu=self.df_gpu)
 
     def CDF_plot(self):
-        GenerateGraph().CDF_plot(
+        GenerateDefaultGraph(savefig_title = "mean_" + self.savefig_title, title=self.title).CDF_plot(
             ax_cpu_dic = {
                 'covid': self.df_cpu_covid.mean(),
                 'non-covid': self.df_cpu_non_covid.mean()
@@ -135,7 +120,7 @@ class DefaultAnalysis(object):
                 'covid': self.df_gpu_covid.mean(),
                 'non-covid': self.df_gpu_non_covid.mean()
             },
-            savefig_title = "mean_" + self.savefig_title
+        
         )
 
     def create_table(self):

@@ -14,7 +14,6 @@ sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
-from generate_graph import GenerateGraph
 from custom_analysis import CustomAnalysis
 from default_analysis import DefaultAnalysis
 

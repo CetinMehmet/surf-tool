@@ -6,7 +6,7 @@ import numpy as np
 
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
 
-from generate_graph import GenerateGraph
+from generate_default_graph import GenerateDefaultGraph
 
 """
     Diurnal Analysis:
@@ -100,12 +100,10 @@ class DiurnalAnalysis:
         return df_per_hour_aggregate_month
 
     def daily_monthly_diurnal_pattern(self, df_cpu, df_gpu, month_dic, savefig_title, ylabel, title):
-
-        GenerateGraph(title=title, savefig_title=savefig_title).figure_daily_per_monthly(
+        GenerateDefaultGraph(title=title, savefig_title=savefig_title, ylabel=ylabel).figure_daily_per_monthly(
             df_cpu=df_cpu,
             df_gpu=df_gpu,
             month_dic=month_dic,
-            ylabel=ylabel
         )
 
     def daily_seasonal_diurnal_pattern(
@@ -119,7 +117,7 @@ class DiurnalAnalysis:
         df_gpu_non_covid = self.__get_daily_seasonal_df(df_gpu_dic['non_covid'])
 
         #TODO: Use functions after this part
-        GenerateGraph(title=title, savefig_title=savefig_title).figure_daily_per_seasonal (
+        GenerateDefaultGraph(title=title, savefig_title=savefig_title, ylabel=ylabel).figure_daily_per_seasonal (
             df_cpu_dic={
                 'covid': df_cpu_covid,
                 'non_covid': df_cpu_non_covid
@@ -128,21 +126,16 @@ class DiurnalAnalysis:
                 'covid': df_gpu_covid,
                 'non_covid': df_gpu_non_covid
             },
-            shareX=shareX, ylabel=ylabel, xlabel= "Days",
         )
     
-
-
     def hourly_monthly_diurnal_pattern(
         self, df_cpu, df_gpu, month_dic, ylabel, savefig_title, title
     ):
-        GenerateGraph(savefig_title,title).figure_hourly_monthly(
+        GenerateDefaultGraph(savefig_title, title, ylabel).figure_hourly_monthly(
             df_cpu=df_cpu,
             df_gpu=df_gpu,
             month_dic=month_dic,
-            ylabel=ylabel
         )
-
 
     def hourly_seasonal_diurnal_pattern (
         self, df_cpu_dic, df_gpu_dic, ylabel=None, 
@@ -154,8 +147,7 @@ class DiurnalAnalysis:
         df_gpu_covid = self.__get_hourly_seasonal_df(df_gpu_dic['covid'])
         df_gpu_non_covid = self.__get_hourly_seasonal_df(df_gpu_dic['non_covid'])
 
-        #TODO: Use functions after this part
-        GenerateGraph().figure_hourly_seasonal (
+        GenerateDefaultGraph(title=title, savefig_title=savefig_title, ylabel=ylabel).figure_hourly_seasonal(
             df_cpu_dic={
                 'covid': df_cpu_covid,
                 'non_covid': df_cpu_non_covid
@@ -164,10 +156,6 @@ class DiurnalAnalysis:
                 'covid': df_gpu_covid,
                 'non_covid': df_gpu_non_covid
             },
-            shareX=shareX, ylabel=ylabel, 
-            title_cpu=title + " | CPU nodes",
-            title_gpu=title + " | GPU nodes",
-            savefig_title=savefig_title
         )
 
         

@@ -62,6 +62,7 @@ def main():
 
     print("Please wait, as we are analyzing %s..." % metric_name)
     if custom_analysis: 
+        print("Custom analysis: ")
         # metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).entire_period_analysis()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).all_analysis()
@@ -69,7 +70,8 @@ def main():
         metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).create_table()
     # Default covid vs non-covid analysis
     else: 
-        metric.default(metric1, second_parquet=metric2).create_table()
+        print("Default analysis (covid vs non-covid): ")
+        metric.default(metric1, second_parquet=metric2).entire_period_analysis()
     
     print("Done!")
     exit(0)

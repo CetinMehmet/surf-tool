@@ -7,7 +7,7 @@ sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
-from generate_graph import GenerateGraph
+from generate_custom_graph import GenerateCustomGraph
 from generate_table import GenerateTable
 import matplotlib.pyplot as plt 
 import pandas as pd
