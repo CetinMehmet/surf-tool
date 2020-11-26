@@ -14,9 +14,7 @@ sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
-from graph_type import GraphType
-from memory import Memory
-from disk import Disk
+from generate_graph import GenerateGraph
 from custom_analysis import CustomAnalysis
 from default_analysis import DefaultAnalysis
 
@@ -79,15 +77,6 @@ class Metric:
         return CustomAnalysis(node_parquets=self.node_parquets, 
                     parquet=parquet, second_parquet=second_parquet, 
                     racks=racks, nodes=nodes, period=period) 
-
-    def disk(self, parquet, *args):
-        if args:
-            return Disk(self.node_parquets, parquet, args[0]) # second metric
-        else:
-            return Disk(self.node_parquets, parquet)
-
-    def memory(self, parquet, *args):
-        return Memory(self.node_parquets, parquet, args[0])
 
     def default(self, parquet, **kargs):
         second_parquet = kargs['second_parquet']

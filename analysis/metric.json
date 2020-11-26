@@ -25,10 +25,10 @@
             "savefig_title": "/memory_cached/"
         },
         "node_memory_MemFree": {
-            "title": "Free memory (RAM)",
-            "ylabel": "Free bytes",
+            "title": "Memory(RAM) utilization",
+            "ylabel": "GB",
             "xlabel": "",
-            "savefig_title": "/memory_free/"
+            "savefig_title": "/memory_util/"
         },
         "node_memory_MemTotal": {
             "title": "Total memory (RAM) capacity",

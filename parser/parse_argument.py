@@ -44,7 +44,7 @@ class ParseArgument:
                             help="Select the periods you would like to analyze.")
 
         self.__parser.add_argument("-m", "--metric", 
-                            action="store", type=str, dest="metricname", 
+                            action="store", type=self.get_metrics, dest="metricname", 
                             required=True, 
                             help="Select the metric you would like to analyze.")
 
@@ -54,7 +54,7 @@ class ParseArgument:
 
 
     def get_datetime(self, string):
-        if string == "FULL" or string == "":
+        if string == "full" or string == "FULL" or string == "":
             return string.upper()
 
         dates = string.split(",")
@@ -68,6 +68,16 @@ class ParseArgument:
         # Reassign 'period' with datetime type
         return [start_time, end_time]
 
+    def get_metrics(self, string):
+        if "," in string:
+            # Split from commas, remove them and strip the elements to remove whitespace
+            nodes = list(map(lambda x : x.strip(), string.split(",")))
+            if len(nodes) > 2:
+                print("Error: No more than 2 metrics can be investigated at once.")
+                exit(1)
+            else:
+                return nodes
+        return [string]
 
     def get_nodes(self, string):
         if "," in string:
@@ -77,9 +87,9 @@ class ParseArgument:
             # Split by whitespace and filter the empty strings from list
             nodes = list(filter(lambda x: x != "", string.split(" ")))
         
-        # Accept no more than 4 nodes
-        if len(nodes) > 4:
-            print("Error: No more than 4 nodes can be investigated at once.")
+        # Accept no more than 10 nodes
+        if len(nodes) > 10:
+            print("Error: No more than 10 nodes can be investigated at once.")
             exit(1)
 
         return nodes

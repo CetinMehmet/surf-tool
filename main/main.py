@@ -45,9 +45,16 @@ def main():
     period = args.periodname[0]
     nodes = args.nodenames
     racks = args.racknames
-    metric_parquet = args.metricname
-    metric_name = " ".join(metric_parquet.split("_")[1:])
-    custom_analysis = False if period == "" and nodes == [] and racks == [] else True
+
+    metric1, metric2 = "", ""
+    if len(args.metricname) == 2:
+        metric1 = args.metricname[0]
+        metric2 = args.metricname[1]
+    else:
+        metric1 = args.metricname[0]
+
+    metric_name = " ".join(metric1.split("_")[1:])
+    custom_analysis = False if period == "" and nodes == [] and racks == "" else True
 
     if nodes != [] and racks != "":
         print("Racks and nodes can't be analyzed at once.")
@@ -55,12 +62,14 @@ def main():
 
     print("Please wait, as we are analyzing %s..." % metric_name)
     if custom_analysis: 
-        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).entire_period_analysis()
-        metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
-        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).daily_seasonal_diurnal_pattern()
+        # metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).entire_period_analysis()
+        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
+        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).all_analysis()
+        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).cdf()
+        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).create_table()
     # Default covid vs non-covid analysis
     else: 
-        pass
+        metric.default(metric1, second_parquet=metric2).create_table()
     
     print("Done!")
     exit(0)
