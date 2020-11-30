@@ -46,7 +46,7 @@ WEEK = 7 * DAY
 TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 MARKERS = ['s', '*', 'o', 'v', '<', 'p', '.', 'd']
 COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-    
+SHOW_PLOT = False
 
 # Configure label sizes of graphs
 params = {
@@ -99,7 +99,8 @@ class GenerateDefaultGraph:
         ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
         plt.pause(0.0001)
 
 
@@ -123,7 +124,8 @@ class GenerateDefaultGraph:
         ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
         plt.pause(0.0001)
 
     def figure_hourly_monthly(self, df_cpu, df_gpu, month_dic):
@@ -140,8 +142,9 @@ class GenerateDefaultGraph:
         self.__construct_hourly_montly_plots(ax=ax_cpu, ylabel=self.ylabel, title = self.title + " | CPU nodes | aggregated per month")
         self.__construct_hourly_montly_plots(ax=ax_gpu, ylabel=self.ylabel, title = self.title + " | GPU nodes | aggregated per month")
 
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
+        if SHOW_PLOT:
+            plt.show()
         plt.pause(0.0001)
 
 
@@ -170,21 +173,23 @@ class GenerateDefaultGraph:
         ax_gpu.set_xticklabels([hour for hour in range(0, 24, 2)])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
         plt.pause(0.0001)
 
-    def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic, ylabel):
+    def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic):
 
         _, (ax_cpu, ax_gpu) = plt.subplots(2, 1, constrained_layout=True)
         self.__axes_rack_analysis(ax_gpu, 
-            xlabel="GPU racks", ylabel=ylabel, df_covid=df_gpu_dic["covid"], 
+            xlabel="GPU racks", ylabel=self.ylabel, df_covid=df_gpu_dic["covid"], 
             df_non_covid=df_gpu_dic["non_covid"], title=self.title)
         self.__axes_rack_analysis(ax_cpu, 
-            xlabel="CPU racks", ylabel=ylabel, df_covid=df_cpu_dic["covid"], 
+            xlabel="CPU racks", ylabel=self.ylabel, df_covid=df_cpu_dic["covid"], 
             df_non_covid=df_cpu_dic["non_covid"], title=self.title)
         
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
         plt.pause(0.0001)
     
    
@@ -197,7 +202,8 @@ class GenerateDefaultGraph:
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
         plt.pause(0.0001)
         
     def get_pearsonr(self, x, y):
@@ -211,18 +217,19 @@ class GenerateDefaultGraph:
         ax_cpu.hist(x=ax_cpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
         ax_cpu.hist(x=ax_cpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid') # non-covid
         ax_cpu.set_ylabel("Density")
-        ax_cpu.set_xlabel("Memory utilization ratio")
+        ax_cpu.set_xlabel(self.ylabel)
         ax_cpu.legend(loc='upper right')
 
         ax_gpu.set_title(self.title + " | GPU nodes")
         ax_gpu.hist(x=ax_gpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
         ax_gpu.hist(x=ax_gpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid') # non-covid
         ax_gpu.set_ylabel("Density")
-        ax_gpu.set_xlabel("Memory utilization ratio")
+        ax_gpu.set_xlabel(self.ylabel)
         ax_gpu.legend(loc='upper right')
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
 
     def entire_period_analysis(self, df_cpu, df_gpu):
         
@@ -252,9 +259,11 @@ class GenerateDefaultGraph:
         set_components(ax=ax_mean, df_c=df_cpu_mean, df_g=df_gpu_mean, subtitle=" mean values ")
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        if SHOW_PLOT: 
+            plt.show()
 
-    #### PRIVATE FUNCTIONS ######
+
+    ##### PRIVATE FUNCTIONS ######
 
     def __get_converted_xticks(self, ax):
         """

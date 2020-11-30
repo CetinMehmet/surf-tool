@@ -10,14 +10,6 @@ sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
 sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
 
-DAY = 24
-MID_DAY = int(DAY / 2)
-WEEK = 7 * DAY
-TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
-MARKERS = ['s', '*', 'o', 'v', '<', 'p', '.', 'd']
-COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-    
-
 # Configure label sizes of graphs
 params = {
     'xtick.labelsize':16,
@@ -31,6 +23,15 @@ params = {
 }
 
 pylab.rcParams.update(params)
+
+
+DAY = 24
+MID_DAY = int(DAY / 2)
+WEEK = 7 * DAY
+TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
+MARKERS = ['s', '*', 'o', 'v', '<', 'p', '.', 'd']
+COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+SHOW_PLOT = False
 
 
 class GenerateCustomGraph:
@@ -47,24 +48,25 @@ class GenerateCustomGraph:
         else:
             self.timestamp = str(" " + self.period[0].strftime("%Y-%m-%d") + " to " + self.period[1].strftime("%Y-%m-%d")) 
 
-
-    ##### CUSTOM ANALYSIS ###################
+    #### PRIVATE FUNCTIONS ####
+    def __save_formatted_fig(self, analysis_type):
+        savefig_path = str(TOOL_PATH) + "/plots/" + self.savefig_title + analysis_type + ".pdf"
+        plt.savefig(savefig_path, dpi=100)
+        
+    ############### CUSTOM ANALYSIS ###################
     def entire_period_analysis(self, df_dict):
-        def __get_converted_xticks(self, ax):
-            """
-            :param ax:
-            :return list of day strings
-            """
+
+        def get_converted_xticks(ax):
             return [pd.to_datetime(tick, unit='d').date().strftime("%d\n%b") for tick in ax.get_xticks()]
-            
-        def ax_components(ax):
+
+        def ax_components(ax):                
             # Set other features of plot
             ax.set_ylim(0, )
             ax.set_xlabel("Days")
             ax.set_ylabel(self.ylabel)
             ax.set_title(self.title)
             ax.legend(loc="upper left")
-            ax.set_xticklabels(labels=self.__get_converted_xticks(ax))
+            ax.set_xticklabels(labels=get_converted_xticks(ax))
 
         _, (ax) = plt.subplots( figsize=(18,10))
         df_keys = []
@@ -96,7 +98,6 @@ class GenerateCustomGraph:
 
             self.title += str(" custom nodes")
                
-
          # Rack specified
         elif 'df_rack' in df_keys:
             _, ax = plt.subplots(1, 1)
@@ -131,10 +132,10 @@ class GenerateCustomGraph:
         # Nodes not specified
         elif 'df_cpu_covid' in df_keys:
             print("Not possible for this analysis type")
-       
-        self.savefig_title += "entire_period"
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        
+        self.__save_formatted_fig(analysis_type="entire_period")
+        if SHOW_PLOT:
+            plt.show()
         plt.pause(0.0001)
 
     def custom_daily_seasonal_diurnal_pattern(self, df_dict):
@@ -242,10 +243,9 @@ class GenerateCustomGraph:
             self.title += " CPU vs GPU nodes"
 
         self.title += self.timestamp
- 
-        self.savefig_title += "custom_daily_seasonal"
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        self.__save_formatted_fig(analysis_type="daily_seasonal_diurnal")
+        if SHOW_PLOT:
+            plt.show()
         plt.pause(0.0001)
 
 
@@ -267,7 +267,6 @@ class GenerateCustomGraph:
             ax.set_ylim(0, )
             ax.set_xlabel("Hours")
             ax.legend(loc="upper right")
-
 
         df_keys = []
 
@@ -352,10 +351,9 @@ class GenerateCustomGraph:
             self.title += " CPU vs GPU nodes aggregated values "
 
         self.title += self.timestamp
-
-        self.savefig_title += "custom_hourly_seasonal"
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        self.__save_formatted_fig(analysis_type="hourly_seasonal_diurnal")
+        if SHOW_PLOT:
+            plt.show()
         plt.pause(0.0001)
 
     def custom_cdf(self, df_dict):
@@ -374,7 +372,7 @@ class GenerateCustomGraph:
 
         def ax_components(ax):
             ax.set_title(self.title)
-            ax.set_ylabel("Density")
+            ax.set_ylabel("Frequency")
             ax.set_xlim(0, )
             ax.set_xlabel(self.ylabel)
             ax.legend(loc='lower right')
@@ -416,21 +414,29 @@ class GenerateCustomGraph:
             df.sort_index(inplace=True)
             df_values = get_custom_values(df) # get all the values in df
             
-            _, ax = plt.subplots()
-            ax.hist(df_values, label=df.columns[0].split("n")[0], color=COLORS[0], density=True, histtype='step', bins=100, cumulative=True)
-            ax_components(ax)
+            _, (ax_cdf, ax_hist) = plt.subplots(2, 1, constrained_layout=True)
+            ax_cdf.hist(df_values, label=df.columns[0].split("n")[0], color=COLORS[0], density=True, histtype='step', bins=100, cumulative=True)
+            ax_cdf.set_ylabel("Density")
+            ax_hist.hist(df_values, bins=1000)
+            ax_components(ax_cdf)
+            ax_components(ax_hist)
 
         elif 'df_rack_covid' in df_keys:
             df_covid = df_dict['df_rack_covid'][0]
-            df_non_covid = df_dict['df_rack'][0]
+            df_non_covid = df_dict['df_rack_non_covid'][0]
 
             df_covid_values = get_custom_values(df_covid) # Aggregate the nodes in the rack 
             df_non_covid_values = get_custom_values(df_non_covid) # Aggregate the nodes in the rack 
 
-            _, ax = plt.subplots()
-            ax.hist(df_covid_values, label=df.columns[0].split("n")[0] + " covid", c=COLORS[0], density=True, histtype='step', bins=100, cumulative=True)
-            ax.hist(df_non_covid_values, label=df.columns[0].split("n")[0] + " non-covid", c=COLORS[1], density=True, histtype='step', bins=100, cumulative=True)
-            ax_components(ax)
+            _, (ax_cdf, ax_covid, ax_non_covid) = plt.subplots(3, 1, constrained_layout=True)
+            ax_cdf.hist(df_covid_values, label=df_covid.columns[0].split("n")[0] + " covid", color=COLORS[0], density=True, histtype='step', bins=100, cumulative=True)
+            ax_cdf.hist(df_non_covid_values, label=df_non_covid.columns[0].split("n")[0] + " non-covid", color=COLORS[1], density=True, histtype='step', bins=100, cumulative=True)
+            ax_cdf.set_ylabel("Density")
+            ax_covid.hist(df_covid_values, label="covid", bins=1000)
+            ax_non_covid.hist(df_non_covid_values, label="non-covid", bins=1000)
+            ax_components(ax_cdf)
+            ax_components(ax_covid)
+            ax_components(ax_non_covid)
 
         # Custom period; nodes are default CPU vs GPU
         elif 'df_cpu' in df_keys:
@@ -441,12 +447,18 @@ class GenerateCustomGraph:
             df_cpu = get_custom_values(df_cpu)
             df_gpu = get_custom_values(df_gpu)
 
-            _, ax = plt.subplots()
-            ax.hist(df_cpu, label="CPU", color=COLORS[2], density=True, histtype='step', bins=1000, cumulative=True)
-            ax.hist(df_gpu, label="GPU", color=COLORS[3], density=True, histtype='step', bins=1000, cumulative=True)
-            ax_components(ax)
+            _, (ax_cdf, ax_cpu, ax_gpu) = plt.subplots(3, 1, constrained_layout=True)
+
+            ax_cdf.hist(df_cpu, label="CPU", color=COLORS[2], density=True, bins=1000, histtype='step', cumulative=True)
+            ax_cdf.hist(df_gpu, label="GPU", color=COLORS[3], density=True, bins=1000, histtype='step', cumulative=True)
+            ax_cdf.set_ylabel("Density")
+            ax_cpu.hist(df_cpu, label="CPU", bins=1000)
+            ax_gpu.hist(df_gpu, label="GPU", bins=1000)
+            ax_components(ax_cdf)
+            ax_components(ax_cpu)
+            ax_components(ax_gpu)
 
         self.title += self.timestamp
-        self.savefig_title += "cdf"
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.show()
+        self.__save_formatted_fig(analysis_type="cdf")
+        if SHOW_PLOT:
+            plt.show()

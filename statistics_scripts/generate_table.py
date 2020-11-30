@@ -89,7 +89,7 @@ class GenerateTable:
             df_cpu = df_dict['df_cpu'][0]
             df_gpu = df_dict['df_gpu'][0]
 
-            fig, (ax_cpu, ax_gpu) = plt.subplots(1, 2, constrained_layout=True) # Two tables: 1 for cpu 1 for gpu nodes
+            fig, (ax_cpu, ax_gpu) = plt.subplots(1, 2, constrained_layout=True, figsize=(20, 40)) # Two tables: 1 for cpu 1 for gpu nodes
             self.__create_table(ax_cpu, df_cpu, title=self.title +  " CPU nodes " + self.timestamp)
             self.__create_table(ax_gpu, df_gpu, title=self.title + " GPU nodes " + self.timestamp)
 

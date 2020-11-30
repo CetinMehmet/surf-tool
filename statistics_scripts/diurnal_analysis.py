@@ -131,7 +131,7 @@ class DiurnalAnalysis:
     def hourly_monthly_diurnal_pattern(
         self, df_cpu, df_gpu, month_dic, ylabel, savefig_title, title
     ):
-        GenerateDefaultGraph(savefig_title, title, ylabel).figure_hourly_monthly(
+        GenerateDefaultGraph(savefig_title=savefig_title, title=title, ylabel=ylabel).figure_hourly_monthly(
             df_cpu=df_cpu,
             df_gpu=df_gpu,
             month_dic=month_dic,

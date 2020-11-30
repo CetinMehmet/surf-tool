@@ -33,7 +33,7 @@ class CustomAnalysis(object):
 
         # Assign the components of the plot
         self.title = metric_json[parquet]['title']
-        self.savefig_title = metric_json[parquet]['savefig_title']
+        self.savefig_title = metric_json[parquet]['savefig_title'] + "custom/"
         self.ylabel = metric_json[parquet]['ylabel']
 
         # Get parquet data and load to df
@@ -124,7 +124,7 @@ class CustomAnalysis(object):
 
         # Custom nodes or racks aren't specified, so we take the whole node set
         else: 
-            self.savefig_title += str(self.racks) + "all_nodes_"
+            self.savefig_title += "all_nodes_"
 
             # Split df to cpu and gpu nodes
             self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
@@ -163,27 +163,33 @@ class CustomAnalysis(object):
         return self.title, self.savefig_title
 
     def daily_seasonal_diurnal_pattern(self):
-        GenerateGraph(savefig_title = self.savefig_title, 
+        GenerateCustomGraph(savefig_title = self.savefig_title, 
             title=self.title, period=self.period, ylabel=self.ylabel
         ).custom_daily_seasonal_diurnal_pattern(
             df_dict=self.df_dict, 
         )
 
     def hourly_seasonal_diurnal_pattern(self):
-        GenerateGraph(savefig_title=self.savefig_title, 
+        GenerateCustomGraph(savefig_title=self.savefig_title, 
             title=self.title, period=self.period, ylabel=self.ylabel
         ).custom_hourly_seasonal_diurnal_pattern(df_dict=self.df_dict)
 
     def entire_period_analysis(self):
-        GenerateGraph(title=self.title, savefig_title=self.savefig_title, ylabel=self.ylabel, period=self.period).entire_period_analysis(
+        GenerateCustomGraph(title=self.title, savefig_title=self.savefig_title, ylabel=self.ylabel, period=self.period).entire_period_analysis(
             df_dict = self.df_dict,  
         )
 
     def cdf(self):
-        GenerateGraph(
+        GenerateCustomGraph(
             title=self.title, savefig_title=self.savefig_title, ylabel=self.ylabel, period=self.period
         ).custom_cdf(df_dict = self.df_dict)
 
     def create_table(self):
         GenerateTable(savefig_title=self.savefig_title, title=self.title, period=self.period).custom_table(self.df_dict)
 
+    def all_analysis(self):
+        self.daily_seasonal_diurnal_pattern()
+        self.hourly_seasonal_diurnal_pattern()
+        self.entire_period_analysis()
+        self.cdf()
+        self.create_table()

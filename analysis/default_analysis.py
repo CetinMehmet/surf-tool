@@ -40,7 +40,7 @@ class DefaultAnalysis(object):
 
         # Assign the components of the plot
         self.title = metric_json[parquet]['title']
-        self.savefig_title = metric_json[parquet]['savefig_title'] + "default_"
+        self.savefig_title = metric_json[parquet]['savefig_title'] + "default/"
         self.ylabel = metric_json[parquet]['ylabel']
 
     def get_meta_data(self):
@@ -61,7 +61,7 @@ class DefaultAnalysis(object):
     
     def daily_monthly_diurnal_pattern(self):
         DiurnalAnalysis().daily_monthly_diurnal_pattern(
-            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5},
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
             savefig_title=self.savefig_title + "daily_monthly_diurnal", 
@@ -93,7 +93,9 @@ class DefaultAnalysis(object):
         )
 
     def rack_analysis(self):
-        GenerateDefaultGraph().figure_rack_analysis(
+        GenerateDefaultGraph( 
+            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis"
+        ).figure_rack_analysis(
             df_cpu_dic={
                 'covid': self.df_cpu_covid,
                 'non_covid': self.df_cpu_non_covid,
@@ -101,8 +103,7 @@ class DefaultAnalysis(object):
             df_gpu_dic={
                 'covid': self.df_gpu_covid, 
                 'non_covid': self.df_gpu_non_covid
-            }, 
-            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis"
+            }
         )
 
     def entire_period_analysis(self):
@@ -111,7 +112,7 @@ class DefaultAnalysis(object):
         ).entire_period_analysis(df_cpu=self.df_cpu, df_gpu=self.df_gpu)
 
     def CDF_plot(self):
-        GenerateDefaultGraph(savefig_title = "mean_" + self.savefig_title, title=self.title).CDF_plot(
+        GenerateDefaultGraph(savefig_title = self.savefig_title + "cdf", title=self.title, ylabel=self.ylabel).CDF_plot(
             ax_cpu_dic = {
                 'covid': self.df_cpu_covid.mean(),
                 'non-covid': self.df_cpu_non_covid.mean()
@@ -122,7 +123,7 @@ class DefaultAnalysis(object):
             },
         
         )
-
+    
     def create_table(self):
         GenerateTable(title=self.title, savefig_title=self.savefig_title, period=None).default_table(df_dict={
             'df_cpu_covid': self.df_cpu_covid,
