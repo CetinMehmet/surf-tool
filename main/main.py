@@ -8,10 +8,9 @@ sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/')
 
-from parse_parquet import ParseParquet
-from parse_argument import ParseArgument
-from analyze_metrics import Metric
-from generate_dataset_page import GeneratePage
+from parser.parse_parquet import ParseParquet
+from parser.parse_argument import ParseArgument
+from analysis.analyze_metrics import Metric
 
 """
 analysis --period="FULL_DATASET" --source:"cpu"
@@ -38,8 +37,8 @@ def main():
 
     # Get the dataset path, parse the data to 2 dictionaries containing node and gpu parquet paths
     dataset_path = get_dataset_path(args.path)
-    node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
-    metric = Metric(node_parquets, gpu_parquets)
+    node_parquets, new_node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
+    metric = Metric(node_parquets, new_node_parquets, gpu_parquets)
 
     # Get start and endtime
     period = args.periodname[0]
@@ -67,7 +66,7 @@ def main():
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).all_analysis()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).cdf()
-        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).cdf()
+        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).entire_period_analysis()
     # Default covid vs non-covid analysis
     else: 
         print("Default analysis (covid vs non-covid): ")

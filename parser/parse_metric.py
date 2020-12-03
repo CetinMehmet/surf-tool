@@ -9,12 +9,25 @@ import pandas as pd
         5. COVID vs NON-COVID
 """
 
-# The CPU racks
-CPU_RACKS = [
-    'r1899', 'r1898', 'r1897', 
-    'r1896', 'r1903', 'r1902', 'r1128', 
-    'r1134', 'r1133', 'r1132'
-]
+# # The CPU racks
+# CPU_RACKS = [
+#     'r1899', 'r1898', 'r1897', 
+#     'r1896', 'r1903', 'r1902', 'r1128', 
+#     'r1134', 'r1133', 'r1132'
+# ]
+
+GPU_NODES = {
+    "r28n1", "r28n2", "r28n3", "r28n4", "r28n5",
+    "r29n1", "r29n2", "r29n3", "r29n4", "r29n5",
+    "r30n1", "r30n2", "r30n3", "r30n4", "r30n5", "r30n6", "r30n7",
+    "r31n1", "r31n2", "r31n3", "r31n4", "r31n5", "r31n6"
+    "r32n1", "r32n2", "r32n3", "r32n4", "r32n5", "r32n6", "r32n7",
+    "r33n2", "r33n3", "r33n5", "r33n6",
+    "r34n1", "r34n2", "r34n3", "r34n4", "r34n5", "r34n6", "r34n7",
+    "r35n1", "r35n2", "r35n3", "r35n4", "r35n5",
+    "r36n1", "r36n2", "r36n3", "r36n4", "r36n5",
+    "r38n1", "r38n2", "r38n3", "r38n4", "r38n5",
+}
 
 class ParseMetric:
 
@@ -60,8 +73,8 @@ class ParseMetric:
         Return the cpu, and gpu partitioned dfs
         """
 
-        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node[0:5] in CPU_RACKS]
-        gpu_nodes = [gpu_node for gpu_node in df.columns if gpu_node not in cpu_nodes]
+        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node not in GPU_NODES]
+        gpu_nodes = [gpu_node for gpu_node in df.columns if gpu_node in GPU_NODES]
 
         return df[cpu_nodes], df[gpu_nodes]
 

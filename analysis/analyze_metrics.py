@@ -65,21 +65,22 @@ TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 
 class Metric:
 
-    def __init__(self, node_parquets: dict, gpu_parquets: dict):
+    def __init__(self, node_parquets: dict, new_node_parquets: dict, gpu_parquets: dict):
         self.node_parquets = node_parquets
+        self.new_node_parquets = new_node_parquets
 
     def custom(self, parquet, **kargs):
         second_parquet = kargs['second_parquet']
         nodes = kargs['nodes']
         period = kargs['period']
         racks = kargs['racks']
-        return CustomAnalysis(node_parquets=self.node_parquets, 
+        return CustomAnalysis(node_parquets=self.new_node_parquets, 
                     parquet=parquet, second_parquet=second_parquet, 
                     racks=racks, nodes=nodes, period=period) 
 
     def default(self, parquet, **kargs):
         second_parquet = kargs['second_parquet']
-        return DefaultAnalysis(self.node_parquets, parquet, second_parquet=second_parquet)
+        return DefaultAnalysis(self.new_node_parquets, parquet, second_parquet=second_parquet)
 
     @staticmethod
     def __get_parquet_path(metric, parq_dic):
@@ -96,45 +97,7 @@ class Metric:
         :return:
         """
         path = Metric.__get_parquet_path(metric, parq_dic)
-        return pd.read_parquet(path, engine="pyarrow")
-
-    def construct_table(self, df):
-        df_table = self.__get_table_df(df)
-        fig, ax = plt.subplots()
-
-        # hide axes
-        fig.patch.set_visible(False)
-        fig.tight_layout()
-
-        ax.axis('off')
-        ax.axis('tight')
-
-        row_labels = ['mean', 'min', 'median', 'max', '1st quartile', '3rd quartile', 'standard deviation']
-        ax.table(
-            cellText=df_table.values,
-            colLabels=df_table.columns,
-            rowLabels=row_labels,
-            colWidths=[.4 for i in range(len(row_labels))],
-            loc='center'
-        )
-
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/", "table" + ".pdf"), dpi=100)
-
-    def __get_table_df(self, df):
-        df_table = pd.DataFrame(
-            data={'metric_df' : {
-                'mean': df.mean(),
-                'min' : df.min(),
-                'median': df.median(),
-                'max': df.max(),
-                '1st quartile': df.quantile(.25),
-                '3rd quartile': df.quantile(.75),
-                'Standard deviation': df.std()
-            }}
-        )
-
-        return df_table
-
+        return pd.read_parquet(path)
 
 
 

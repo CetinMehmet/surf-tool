@@ -5,10 +5,10 @@ sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
 sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
 sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
-from diurnal_analysis import DiurnalAnalysis
-from parse_metric import ParseMetric
-from generate_custom_graph import GenerateCustomGraph
-from generate_table import GenerateTable
+from statistics_scripts.diurnal_analysis import DiurnalAnalysis
+from parser.parse_metric import ParseMetric
+from statistics_scripts.generate_custom_graph import GenerateCustomGraph
+from statistics_scripts.generate_table import GenerateTable
 import matplotlib.pyplot as plt 
 import pandas as pd
 from generate_dataset_page import GeneratePage
@@ -24,7 +24,7 @@ class CustomAnalysis(object):
         self.second_parquet = kargs['second_parquet'] if kargs['second_parquet'] else print("Second parquet not passed")
         self.racks = kargs['racks'] if kargs['racks'] else print("No rack specified")
         self.nodes = kargs['nodes'] if kargs['nodes'] else print("No nodes specified")
-        self.period = kargs['period'] if kargs['period'] else print("No period specified, covid periods taken")
+        self.period = kargs['period'] if kargs['period'] else print("No period specified, covid periods taken(except for entire period analysis)")
 
 
         # Load json file

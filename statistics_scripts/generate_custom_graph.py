@@ -40,7 +40,7 @@ class GenerateCustomGraph:
         self.title = title
         self.savefig_title = savefig_title
         self.ylabel = kargs['ylabel'] 
-        self.period = kargs['period'] if kargs['period'] else print("No period specified")
+        self.period = kargs['period'] if kargs['period'] else print("")
         if self.period == "FULL":
             self.timestamp = " full season "
         elif self.period == None:
@@ -62,7 +62,7 @@ class GenerateCustomGraph:
         def ax_components(ax):                
             # Set other features of plot
             ax.set_ylim(0, )
-            ax.set_xlabel("Days")
+            ax.set_xlabel("2020")
             ax.set_ylabel(self.ylabel)
             ax.set_title(self.title)
             ax.legend(loc="upper left")
@@ -76,14 +76,17 @@ class GenerateCustomGraph:
             if df_dict[k] != None:
                 df_keys.append(k)
 
+        if 'df_rack_covid' in df_keys:
+            print("no covid analysis for entire period")
+            exit(1)
 
         # Nodes specified: Custom nodes; Custom period
-        if 'df_custom' in df_keys:
+        elif 'df_custom' in df_keys:
             df = df_dict['df_custom'][0] # Must remove the brackets by getting [0] of list
             df.index = pd.to_datetime(df.index, unit='s')
             df.sort_index(inplace=True)
 
-            fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True, figsize=(30, 25))
+            fig, ax_arr = plt.subplots(len(df.columns), 1, constrained_layout=True, figsize=(30, 25))
 
             for i in range(len(df.columns)):                
                 curr_node = df.iloc[:, i:i+1]
@@ -100,14 +103,34 @@ class GenerateCustomGraph:
                
          # Rack specified
         elif 'df_rack' in df_keys:
-            _, ax = plt.subplots(1, 1)
             df = df_dict['df_rack'][0]
             df.sort_index(inplace=True)
             df.index = pd.to_datetime(df.index, unit='s')
 
             df_aggr = df.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack
-            ax.plot(df_aggr, color=COLORS[1], label=str(df.columns[0].split("n")[0]) + " aggregated load1")
-            ax_components(ax)
+            df_mean = df.mean(axis=1)
+
+            col_len = len(df.columns) + 2 # Plus 2 is for 2 additional plots: Mean and Aggregate
+
+            # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+
+            ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + "aggregated load1"))
+            ax_arr[1].plot(df_mean, color=COLORS[1], label=str("Rack " + "mean load1"))
+            ax_components(ax_arr[0])
+            ax_components(ax_arr[1])
+
+            for i in range(2, col_len):                
+                curr_node = df.iloc[:, i-2:i-1]
+                ax_arr[i].plot(curr_node, label=str("Node " + curr_node.columns[0]), color=COLORS[i % len(COLORS)])
+                mean_val = round(curr_node.mean(axis=0).values[0], 2)
+                median_val = round(curr_node.median(axis=0).values[0], 2)
+                median_val2 = round(curr_node[curr_node.values > 0].median(axis=0).values[0], 2)
+                ax_arr[i].axhline(y=mean_val, c='black', ls=':', lw=4, label="mean: " + str(mean_val))
+                ax_arr[i].axhline(y=median_val, c='black', ls='--', lw=4, label="median: " + str(median_val))
+                ax_arr[i].axhline(y=median_val2, c='gray', ls='-', lw=4, label="median (zeros filtered): " + str(median_val2))
+                ax_components(ax_arr[i])
+
 
         # Custom period; nodes are default CPU vs GPU
         elif 'df_cpu' in df_keys:
@@ -128,10 +151,12 @@ class GenerateCustomGraph:
         # Period not specified
         elif 'df_covid' in df_keys:
             print("Not possible for this analysis type")
+            exit(1)
 
         # Nodes not specified
         elif 'df_cpu_covid' in df_keys:
             print("Not possible for this analysis type")
+            exit(1)
         
         self.__save_formatted_fig(analysis_type="entire_period")
         if SHOW_PLOT:
@@ -178,7 +203,7 @@ class GenerateCustomGraph:
             for i in range(len(df.columns)):
                 # Must remove the brackets by getting [0] of list
                 curr_node = df.iloc[:, i:i+1]
-                ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i], marker=MARKERS[i])
+                ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i % len(COLORS)], marker=MARKERS[i])
                 ax_components(ax_arr[i])
 
             self.title += str(" custom nodes")
@@ -309,13 +334,23 @@ class GenerateCustomGraph:
         elif 'df_rack' in df_keys:
             df = df_dict['df_rack'][0]
             df.sort_index(inplace=True)
-            
             df = get_time_df(df)
             df_aggr = df.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack
-            
-            _, ax = plt.subplots()
-            ax.plot(df_aggr, label=df.columns[0].split("n")[0], color=COLORS[0], marker=MARKERS[0])
-            ax_components(ax)
+            df_mean = df.mean(axis=1)
+
+            cols = len(df.columns) + 2
+            # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
+            fig, ax_arr = plt.subplots(cols, 1, sharex=True, constrained_layout=True, figsize=(20, 10 * cols))
+
+            ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + df.columns[0].split("n")[0]) + " aggregated load1")
+            ax_arr[1].plot(df_mean, color=COLORS[1], label=str("Rack " + df.columns[0].split("n")[0]) + " mean load1")
+            ax_components(ax_arr[0])
+            ax_components(ax_arr[1])
+
+            for i in range(2, cols):                
+                curr_node = df.iloc[:, i-2:i-1]
+                ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i % len(COLORS)])
+                ax_components(ax_arr[i])
 
         elif 'df_rack_covid' in df_keys:
             df_covid = df_dict['df_rack_covid'][0]
@@ -462,3 +497,5 @@ class GenerateCustomGraph:
         self.__save_formatted_fig(analysis_type="cdf")
         if SHOW_PLOT:
             plt.show()
+
+

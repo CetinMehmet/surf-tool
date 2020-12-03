@@ -46,7 +46,7 @@ class DefaultAnalysis(object):
     def get_meta_data(self):
         return self.title, self.savefig_title
 
-    def daily_seasonal_diurnal_pattern(self, shareX=True):
+    def daily_seasonal_diurnal_pattern(self):
         DiurnalAnalysis().daily_seasonal_diurnal_pattern(
             df_cpu_dic={'covid': self.df_cpu_covid, 
                         'non_covid': self.df_cpu_non_covid,
@@ -61,7 +61,7 @@ class DefaultAnalysis(object):
     
     def daily_monthly_diurnal_pattern(self):
         DiurnalAnalysis().daily_monthly_diurnal_pattern(
-            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'June': 6, "July": 7},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
             savefig_title=self.savefig_title + "daily_monthly_diurnal", 
@@ -84,7 +84,7 @@ class DefaultAnalysis(object):
     
     def hourly_monthly_diurnal_pattern(self):
         DiurnalAnalysis().hourly_monthly_diurnal_pattern(
-            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3},
+            month_dic={'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'June': 6, "July": 7},
             df_cpu=self.df_cpu,
             df_gpu=self.df_gpu,
             savefig_title=self.savefig_title + "hourly_monthly_diurnal", 

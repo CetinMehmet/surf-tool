@@ -210,22 +210,22 @@ class GenerateDefaultGraph:
         return scipy.stats.pearsonr(x=x, y=y)[0] # Return r which is pearson correlation coefficient
 
     def CDF_plot(self, ax_cpu_dic, ax_gpu_dic):
+
+        def set_components(ax, subtitle):
+            ax.set_title(self.title + subtitle)
+            ax.set_ylabel("Density")
+            ax.set_xlabel(self.ylabel)
+            ax.legend(loc='lower right')
+
+        
         fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1)
         fig.tight_layout(pad=5.0)
 
-        ax_cpu.set_title(self.title + " | CPU nodes")
-        ax_cpu.hist(x=ax_cpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
-        ax_cpu.hist(x=ax_cpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid') # non-covid
-        ax_cpu.set_ylabel("Density")
-        ax_cpu.set_xlabel(self.ylabel)
-        ax_cpu.legend(loc='upper right')
-
+        ax_cpu.hist(x=ax_cpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid', bins=100) # covid
+        ax_cpu.hist(x=ax_cpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid', bins=100) # non-covid
+       
         ax_gpu.set_title(self.title + " | GPU nodes")
         ax_gpu.hist(x=ax_gpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
-        ax_gpu.hist(x=ax_gpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid') # non-covid
-        ax_gpu.set_ylabel("Density")
-        ax_gpu.set_xlabel(self.ylabel)
-        ax_gpu.legend(loc='upper right')
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
@@ -233,9 +233,8 @@ class GenerateDefaultGraph:
 
     def entire_period_analysis(self, df_cpu, df_gpu):
         
-        def set_components(ax, df_c, df_g, subtitle):
-            ax.plot(df_c, label="cpu", color="blue")
-            ax.plot(df_g, label="gpu", color="red")
+        def set_components(ax, df, subtitle, label, color):
+            ax.plot(df, label=label, color=color)
             ax.set_ylim(0, )
             ax.set_xlabel("2020")
             ax.set_ylabel(self.ylabel)
@@ -248,15 +247,17 @@ class GenerateDefaultGraph:
         df_gpu.index = pd.to_datetime(df_gpu.index, utc=True, unit="s")
 
         # Get the sum and mean of all the nodes
-        df_cpu_sum = pd.DataFrame(df_cpu).aggregate(func=sum, axis=1)
-        df_gpu_sum = pd.DataFrame(df_gpu).aggregate(func=sum, axis=1)
+        df_cpu_sum = df_cpu.aggregate(func=sum, axis=1)
+        df_gpu_sum = df_gpu.aggregate(func=sum, axis=1)
 
-        df_cpu_mean = pd.DataFrame(df_cpu).mean(axis=1)
-        df_gpu_mean = pd.DataFrame(df_gpu).mean(axis=1)
+        df_cpu_mean = df_cpu.mean(axis=1)
+        df_gpu_mean = df_gpu.mean(axis=1)
 
-        fig, (ax_sum, ax_mean) = plt.subplots(2, 1, figsize=(18,10), constrained_layout=True, sharex=True)
-        set_components(ax=ax_sum, df_c=df_cpu_sum, df_g=df_gpu_sum, subtitle=" aggregated values ")
-        set_components(ax=ax_mean, df_c=df_cpu_mean, df_g=df_gpu_mean, subtitle=" mean values ")
+        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(18, 40), constrained_layout=True, sharex=True)
+        set_components(ax=ax_cpu_sum, df=df_cpu_sum, label="Generic", color=COLORS[0], subtitle=" aggregated values ")
+        set_components(ax=ax_gpu_sum, df=df_gpu_sum, label="ML", color=COLORS[1], subtitle=" aggregated values ")
+        set_components(ax=ax_cpu_mean, df=df_cpu_mean, label="Generic", color=COLORS[0], subtitle=" mean values ")
+        set_components(ax=ax_gpu_mean, df=df_gpu_mean,  label="ML", color=COLORS[0], subtitle=" mean values ")
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
