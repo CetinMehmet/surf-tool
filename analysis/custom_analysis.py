@@ -1,9 +1,10 @@
 import numpy as np
-import sys, json
+import sys, json, os
 
-sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
-sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
+curr_path = os.getcwd() + '/surfsara-tool'
+sys.path.insert(1, curr_path + '/parse_metric')
+sys.path.insert(2, curr_path + '/statistics_scripts')
+sys.path.insert(3, curr_path + '/analysis')
 
 from statistics_scripts.diurnal_analysis import DiurnalAnalysis
 from parser.parse_metric import ParseMetric
@@ -28,7 +29,7 @@ class CustomAnalysis(object):
 
 
         # Load json file
-        with open("/Users/cetinmehmet/Desktop/surfsara-tool/analysis/metric.json", 'r') as f:
+        with open(curr_path + "/analysis/metric.json", 'r') as f:
             metric_json = json.load(f)
 
         # Assign the components of the plot
@@ -188,8 +189,8 @@ class CustomAnalysis(object):
         GenerateTable(savefig_title=self.savefig_title, title=self.title, period=self.period).custom_table(self.df_dict)
 
     def all_analysis(self):
-        self.daily_seasonal_diurnal_pattern()
         self.hourly_seasonal_diurnal_pattern()
-        self.entire_period_analysis()
         self.cdf()
         self.create_table()
+        self.entire_period_analysis()
+        self.daily_seasonal_diurnal_pattern()

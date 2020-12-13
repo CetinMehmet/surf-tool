@@ -4,13 +4,14 @@ from pathlib import Path
 import argparse
 import time
 
-sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
-sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/')
+curr_path = os.getcwd() + '/surfsara-tool'
+sys.path.insert(1, curr_path + '/parser')
+sys.path.insert(2, curr_path + '/analysis')
+sys.path.insert(3, curr_path)
 
-from parser.parse_parquet import ParseParquet
-from parser.parse_argument import ParseArgument
-from analysis.analyze_metrics import Metric
+from parse_parquet import ParseParquet
+from parse_argument import ParseArgument
+from analyze_metrics import Metric
 
 """
 analysis --period="FULL_DATASET" --source:"cpu"
@@ -37,8 +38,8 @@ def main():
 
     # Get the dataset path, parse the data to 2 dictionaries containing node and gpu parquet paths
     dataset_path = get_dataset_path(args.path)
-    node_parquets, new_node_parquets, gpu_parquets = ParseParquet(dataset_path).get_parquets()
-    metric = Metric(node_parquets, new_node_parquets, gpu_parquets)
+    new_node_parquets = ParseParquet(dataset_path).get_parquets()
+    metric = Metric(new_node_parquets)
 
     # Get start and endtime
     period = args.periodname[0]
@@ -66,11 +67,12 @@ def main():
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).all_analysis()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).cdf()
-        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).entire_period_analysis()
+        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).daily_seasonal_diurnal_pattern()
     # Default covid vs non-covid analysis
     else: 
         print("Default analysis (covid vs non-covid): ")
-        metric.default(metric1, second_parquet=metric2).all_analysis()
+        metric.default(metric1, second_parquet=metric2).hourly_seasonal_diurnal_pattern()
+        metric.default(metric1, second_parquet=metric2).daily_seasonal_diurnal_pattern()
     
     print("Done!")
     exit(0)

@@ -6,11 +6,10 @@ import seaborn as sns
 from pathlib import Path
 import calendar
 
-
-sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
-sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
-
+curr_path = os.getcwd() + '/surfsara-tool'
+sys.path.insert(1, curr_path + '/parse_metric')
+sys.path.insert(2, curr_path + '/statistics_scripts')
+sys.path.insert(3, curr_path + '/analysis')
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
@@ -65,8 +64,7 @@ TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 
 class Metric:
 
-    def __init__(self, node_parquets: dict, new_node_parquets: dict, gpu_parquets: dict):
-        self.node_parquets = node_parquets
+    def __init__(self, new_node_parquets: dict):
         self.new_node_parquets = new_node_parquets
 
     def custom(self, parquet, **kargs):

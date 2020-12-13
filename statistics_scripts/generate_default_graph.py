@@ -6,11 +6,12 @@ import matplotlib.pylab as pylab
 import numpy as np
 import pandas as pd
 import scipy
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+import seaborn as sns
+import matplotlib.patches as mpatches
 
-sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
-sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
+sys.path.insert(1, '/home/cmt2002/surfsara-tool/statistics_scripts')
+sys.path.insert(2, '/home/cmt2002/surfsara-tool/parser')
+sys.path.insert(3, '/home/cmt2002/surfsara-tool/analysis')
 
 from parse_metric import ParseMetric
 
@@ -50,12 +51,12 @@ SHOW_PLOT = False
 
 # Configure label sizes of graphs
 params = {
-    'xtick.labelsize':16,
-    'ytick.labelsize':16,
-    'axes.labelsize':18,
-    'figure.figsize': (10, 8),
+    'xtick.labelsize':12,
+    'ytick.labelsize':12,
+    'axes.labelsize':16,
+    'figure.figsize': (18, 8),
     'savefig.format': 'pdf',
-    'axes.titlesize': 20,
+    'axes.titlesize': 16,
     'legend.loc': 'best',
     'legend.fontsize': "large"
 }
@@ -73,18 +74,25 @@ class GenerateDefaultGraph:
         self.ylabel = kargs['ylabel'] 
         
     ########### DEFAULT ANALYSIS: COVID VS NON-COVID + CPU vs GPU nodes ###########
+      ########### DEFAULT ANALYSIS: COVID VS NON-COVID + CPU vs GPU nodes ###########
     def figure_daily_per_seasonal(
         self, df_cpu_dic, df_gpu_dic
     ):
 
-        _, (ax_cpu, ax_gpu) = plt.subplots(2, 1, sharex=True, constrained_layout=True)
+        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True)
 
-        self.__axes_daily_seasonal_plot(
+        ax_cpu = self.__axes_daily_seasonal_plot(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
             df_non_covid=df_cpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " CPU nodes| aggregated full period"
+            title=self.title + " Generic nodes"
+        )
+
+        ax_cpu_violin = self.__axes_daily_seasonal_violin(
+            ax=ax_cpu_violin,
+            df_covid=df_cpu_dic["covid"],
+            df_non_covid=df_cpu_dic["non_covid"]
         )
 
         ax_gpu = self.__axes_daily_seasonal_plot(
@@ -92,21 +100,27 @@ class GenerateDefaultGraph:
             df_covid=df_gpu_dic["covid"], 
             df_non_covid=df_gpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " GPU nodes | aggregated full period",
-            xlabel="Days"
+            title=self.title + " ML nodes"
         )
+        ax_gpu_violin = self.__axes_daily_seasonal_violin(
+            ax=ax_gpu_violin,
+            df_covid=df_gpu_dic["covid"],
+            df_non_covid=df_gpu_dic["non_covid"],
+        )
+        ax_cpu.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
+        ax_cpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], fontsize=12)
         ax_gpu.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
-        ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+        ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], fontsize=12)
 
-        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100)
+        
         if SHOW_PLOT: 
             plt.show()
         plt.pause(0.0001)
 
-
     def figure_daily_per_monthly(self, df_cpu, df_gpu, month_dic):
 
-        fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1, sharex=True, constrained_layout=True)
+        fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1, constrained_layout=True)
 
         for name, value in month_dic.items():
             df_cpu_month = self.diurnal_analysis.get_daily_month_df(df_cpu, value)
@@ -119,7 +133,8 @@ class GenerateDefaultGraph:
         self.__construct_daily_montly_plots(ax=ax_cpu, ylabel=self.ylabel, title = self.title + " | CPU nodes | aggregated per month")
         self.__construct_daily_montly_plots(ax=ax_gpu, ylabel=self.ylabel, title = self.title + " | GPU nodes | aggregated per month")
 
-
+        ax_cpu.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
+        ax_cpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
         ax_gpu.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
         ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
 
@@ -129,7 +144,7 @@ class GenerateDefaultGraph:
         plt.pause(0.0001)
 
     def figure_hourly_monthly(self, df_cpu, df_gpu, month_dic):
-        fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1, sharex=True, constrained_layout=True)
+        fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1, constrained_layout=True)
 
         for name, value in month_dic.items():
             df_cpu_month = self.diurnal_analysis.get_hourly_month_df(df_cpu, value)
@@ -151,14 +166,19 @@ class GenerateDefaultGraph:
     def figure_hourly_seasonal(
         self, df_cpu_dic, df_gpu_dic
     ):
-        fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1, sharex=True, constrained_layout=True)
+        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True)
 
         self.__axes_hourly_plot(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
             df_non_covid=df_cpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " | CPU nodes"
+            title=self.title + " Generic nodes"
+        )
+        self.__axes_daily_seasonal_violin(
+            ax=ax_cpu_violin,
+            df_covid=df_cpu_dic["covid"],
+            df_non_covid=df_cpu_dic["non_covid"]
         )
 
         self.ax_gpu = self.__axes_hourly_plot(
@@ -166,11 +186,19 @@ class GenerateDefaultGraph:
             df_covid=df_gpu_dic["covid"], 
             df_non_covid=df_gpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " | GPU nodes",
+            title=self.title + " ML nodes",
             xlabel="Hours"
         )
-        ax_gpu.set_xticks([hour for hour in range(0, 24, 2)])
-        ax_gpu.set_xticklabels([hour for hour in range(0, 24, 2)])
+        self.__axes_daily_seasonal_violin(
+            ax=ax_gpu_violin,
+            df_covid=df_gpu_dic["covid"],
+            df_non_covid=df_gpu_dic["non_covid"]
+        )
+
+        ax_cpu.set_xticks([hour for hour in range(0, 24, 3)])
+        ax_cpu.set_xticklabels([hour for hour in range(0, 24, 3)])
+        ax_gpu.set_xticks([hour for hour in range(0, 24, 3)])
+        ax_gpu.set_xticklabels([hour for hour in range(0, 24, 3)])
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
@@ -179,15 +207,30 @@ class GenerateDefaultGraph:
 
     def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic):
 
-        _, (ax_cpu, ax_gpu) = plt.subplots(2, 1, constrained_layout=True)
+        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(40, 35))
+        self.__axes_rack_analysis(
+            ax=ax_cpu, 
+            df_covid=df_cpu_dic["covid"], 
+            df_non_covid=df_cpu_dic["non_covid"],
+            subtitle= " CPU racks")
+        self.__axes_rack_violinplot(
+            ax=ax_violin_cpu,
+            df_covid=df_cpu_dic["covid"],
+            df_non_covid=df_cpu_dic["non_covid"],
+            subtitle=" CPU racks")
+
         self.__axes_rack_analysis(ax_gpu, 
-            xlabel="GPU racks", ylabel=self.ylabel, df_covid=df_gpu_dic["covid"], 
-            df_non_covid=df_gpu_dic["non_covid"], title=self.title)
-        self.__axes_rack_analysis(ax_cpu, 
-            xlabel="CPU racks", ylabel=self.ylabel, df_covid=df_cpu_dic["covid"], 
-            df_non_covid=df_cpu_dic["non_covid"], title=self.title)
-        
+            df_covid=df_gpu_dic["covid"], 
+            df_non_covid=df_gpu_dic["non_covid"],
+            subtitle=" GPU racks")
+        self.__axes_rack_violinplot(
+            ax=ax_violin_gpu,
+            df_covid=df_gpu_dic["covid"],
+            df_non_covid=df_gpu_dic["non_covid"],
+            subtitle=" GPU racks ")
+
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
+        plt.subplots_adjust(wspace=0.15, hspace=0.6, left=0.2, bottom=0.15, right=0.96, top=0.96)
         if SHOW_PLOT: 
             plt.show()
         plt.pause(0.0001)
@@ -210,26 +253,28 @@ class GenerateDefaultGraph:
         return scipy.stats.pearsonr(x=x, y=y)[0] # Return r which is pearson correlation coefficient
 
     def CDF_plot(self, ax_cpu_dic, ax_gpu_dic):
-
         def set_components(ax, subtitle):
             ax.set_title(self.title + subtitle)
             ax.set_ylabel("Density")
             ax.set_xlabel(self.ylabel)
             ax.legend(loc='lower right')
-
         
         fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1)
         fig.tight_layout(pad=5.0)
 
         ax_cpu.hist(x=ax_cpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid', bins=100) # covid
         ax_cpu.hist(x=ax_cpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='non-covid', bins=100) # non-covid
-       
-        ax_gpu.set_title(self.title + " | GPU nodes")
-        ax_gpu.hist(x=ax_gpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid') # covid
+    
+        ax_gpu.hist(x=ax_gpu_dic['covid'], density=True, histtype='step', cumulative=True, color='blue', label='covid', bins=100) # covid
+        ax_gpu.hist(x=ax_gpu_dic['non-covid'], density=True, histtype='step', cumulative=True, color='orange', label='covid', bins=100) # covid
+
+        set_components(ax_cpu, " | CPU Nodes")
+        set_components(ax_gpu, " | GPU Nodes")
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
             plt.show()
+        plt.pause(0.0001)
 
     def entire_period_analysis(self, df_cpu, df_gpu):
         
@@ -253,7 +298,7 @@ class GenerateDefaultGraph:
         df_cpu_mean = df_cpu.mean(axis=1)
         df_gpu_mean = df_gpu.mean(axis=1)
 
-        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(18, 40), constrained_layout=True, sharex=True)
+        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(40, 20), constrained_layout=True)
         set_components(ax=ax_cpu_sum, df=df_cpu_sum, label="Generic", color=COLORS[0], subtitle=" aggregated values ")
         set_components(ax=ax_gpu_sum, df=df_gpu_sum, label="ML", color=COLORS[1], subtitle=" aggregated values ")
         set_components(ax=ax_cpu_mean, df=df_cpu_mean, label="Generic", color=COLORS[0], subtitle=" mean values ")
@@ -263,8 +308,19 @@ class GenerateDefaultGraph:
         if SHOW_PLOT: 
             plt.show()
 
+        plt.pause(0.0001)
+
 
     ##### PRIVATE FUNCTIONS ######
+    
+    def __get_max_pdf(self, df):
+        def normalize(df):
+            df = df.value_counts(sort=False, normalize=True).rename_axis('target').reset_index(name='pdf')
+            df["cdf"] = df["pdf"].cumsum()
+            return df
+
+        df = normalize(df)
+        return max(df["pdf"].values)
 
     def __get_converted_xticks(self, ax):
         """
@@ -284,13 +340,13 @@ class GenerateDefaultGraph:
 
         return ax
 
-    def __axes_daily_seasonal_plot(self, ax, df_covid, df_non_covid, title, ylabel, xlabel=None):
-        ax.plot(df_covid, marker=".", label="covid")
-        ax.plot(df_non_covid, marker="*", label="non-covid")
+    def __axes_daily_seasonal_plot(self, ax, df_covid, df_non_covid, title, ylabel):
+        ax.plot(df_covid, marker=".", label="covid", color="lightcoral")
+        ax.plot(df_non_covid, marker="*", label="non-covid", color="steelblue")
         ax.set_ylim(0, )
-        ax.set_title(title)
+        ax.set_title(title, fontsize=14)
         ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
-
+        ax.set_xlabel("Time [days]", fontsize=14)
         # Move the 1e sign next to the ylabel
         # ax.yaxis.offsetText.set_visible(False)
         offset = ax.yaxis.get_offset_text()
@@ -301,10 +357,21 @@ class GenerateDefaultGraph:
             ax.axvline(x=xc, color="gray", lw=0.5)
         
         return ax
-       
+        
+    def __axes_daily_seasonal_violin(self, ax, df_covid, df_non_covid):
+        sns.violinplot(data=[df_covid.values, df_non_covid.values], ax=ax, palette=['lightcoral', 'steelblue'])
+        ax.set_ylabel(self.ylabel, fontsize=16)
+        ax.set_ylim(0, )
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.tick_params(axis='both', which='minor', labelsize=14)
+        ax.yaxis.tick_right()
+        ax.set_xticklabels([" ", " "])
+        ax.text(x=0+0.15, y=0.7, s="{:.2f}".format(self.__get_max_pdf(df_covid)), fontsize=14, color="black")
+        ax.text(x=0.5+0.15, y=0.7, s="{:.2f}".format(self.__get_max_pdf(df_non_covid, fontsize=14, color="black")
+        return ax
 
     # This function belongs to Laurens Versluis: https://github.com/lfdversluis
-    def __axes_rack_analysis(self, ax, df_covid, df_non_covid, xlabel=None, ylabel=None, title=None):
+    def __axes_rack_analysis(self, ax, df_covid, df_non_covid, subtitle):
         rack_nodes = self.__get_rack_nodes(df_covid) #To get the rack nodes
         index=0
         w = 0.4
@@ -319,12 +386,44 @@ class GenerateDefaultGraph:
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="red", capsize=5)
             index += 1
 
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-        ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right")
+        ax.tick_params(axis='both', which='major', labelsize=26)
+        ax.tick_params(axis='both', which='minor', labelsize=22)
+        ax.set_ylabel(self.ylabel, fontsize=24)
+        ax.set_title(self.title + subtitle, fontsize=28)
+        ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
-        ax.set_xticklabels(rack_nodes.keys(), rotation = 90)
+        ax.set_xticklabels(rack_nodes.keys(), fontsize=24)
+
+    def __axes_rack_violinplot(self, ax, df_covid, df_non_covid, subtitle, xlabel=None):
+        rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
+        rack_values = list()
+        rack_names = list()
+        for rack, columns in rack_nodes.items():
+            arr_covid = df_covid[list(columns)].values.ravel()
+            arr_non_covid = df_non_covid[list(columns)].values.ravel()
+            rack_values.append(arr_covid)
+            rack_values.append(arr_non_covid)
+            rack_names.append(rack)
+            
+        sns.violinplot(data=rack_values, ax=ax, palette=['deepskyblue', 'moccasin'] * (int(len(rack_values)/2)))
+        ax.set_ylabel(self.ylabel, fontsize=22)
+        ax.set_ylim(0, )
+        ax.tick_params(axis='both', which='major', labelsize=26)
+        ax.tick_params(axis='both', which='minor', labelsize=22)
+        ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
+        ax.set_title(self.title + subtitle, fontsize=28)
+
+        skyblue_patch = mpatches.Patch(color='deepskyblue', label='covid (left)')
+        moccasin_path =  mpatches.Patch(color='moccasin', label='non-covid (right)')
+        ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
+
+        ax.set_xticklabels(
+            rack_names,
+            ha='center', fontsize=24
+        )
+        for i in range(0, len(rack_values), 2):
+            ax.axvline(i + 1.5, lw=2, ls='dashed')
+
 
     def __get_rack_nodes(self, df):
         rack_nodes = {}

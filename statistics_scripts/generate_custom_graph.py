@@ -5,10 +5,11 @@ import matplotlib.pylab as pylab
 import numpy as np
 import pandas as pd
 
-sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/parser')
-sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
 
+curr_path = os.getcwd() + '/surfsara-tool'
+sys.path.insert(1, curr_path + '/parser')
+sys.path.insert(2, curr_path + '/statistics_scripts')
+sys.path.insert(3, curr_path + '/analysis')
 
 # Configure label sizes of graphs
 params = {
@@ -173,8 +174,8 @@ class GenerateCustomGraph:
             df.index = [hour for hour in range(0, 24*7)]
             return df
 
-        def ax_components(ax):
-            ax.set_title(self.title)
+        def ax_components(ax, subplot=""):
+            ax.set_title(self.title + subplot)
             ax.set_ylabel(self.ylabel)
             ax.set_ylim(0, )
             ax.set_xlabel("Days")
@@ -216,7 +217,7 @@ class GenerateCustomGraph:
             df_covid = get_time_df(df_covid)
             df_non_covid = get_time_df(df_non_covid)
 
-            fig, ax_arr = plt.subplots(len(df_covid.columns), 1, sharex=True, constrained_layout=True)
+            fig, ax_arr = plt.subplots(len(df_covid.columns), 1, constrained_layout=True)
 
             for i in range(len(df_covid.columns)):
                 ax_arr[i].plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[0], marker=MARKERS[0])
@@ -230,24 +231,47 @@ class GenerateCustomGraph:
             df = get_time_df(df)
             df_aggr = df.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack
 
-            _, ax = plt.subplots()
-            ax.plot(df_aggr, label=df.columns[0].split("n")[0], color=COLORS[0], marker=MARKERS[0])
-            ax_components(ax)
+            col_len = len(df.columns) + 1 # Plus 1 is for 1 additional plot: Aggregate
+
+            # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+
+            ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + "aggregated load1"))
+            ax_components(ax_arr[0])
+
+            for i in range(1, col_len):                
+                curr_node = df.iloc[:, i-1:i]
+                ax_arr[i].plot(curr_node, label=str("Node " + curr_node.columns[0]), color=COLORS[i % len(COLORS)])
+                ax_components(ax_arr[i])
+
+            # ENDD
             
         elif 'df_rack_covid' in df_keys:
             df_covid = df_dict['df_rack_covid'][0]
             df_non_covid = df_dict['df_rack_non_covid'][0]
 
-            df_covid = get_time_df(df_covid)
-            df_non_covid = get_time_df(df_non_covid)
+            df_rack_covid = get_time_df(df_covid)
+            df_rack_non_covid = get_time_df(df_non_covid)
 
-            df_covid_aggr = df_covid.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack 
-            df_non_covid_aggr = df_non_covid.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack 
+            df_covid_aggr = df_rack_covid.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack 
+            df_non_covid_aggr = df_rack_non_covid.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack 
 
-            _, ax = plt.subplots()
-            ax.plot(df_covid_aggr, label=df_covid.columns[0].split("n")[0] + " covid", c=COLORS[0], marker=MARKERS[0])
-            ax.plot(df_non_covid_aggr, label=df_non_covid.columns[0].split("n")[0] + " non-covid", c=COLORS[1], marker=MARKERS[1])
-            ax_components(ax)
+            col_len = len(df_covid.columns) + 1 # Plus 2 is for 2 additional plots: Aggregate covid and non-covid
+
+            # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+
+            ax_arr[0].plot(df_covid_aggr, color=COLORS[0], marker=MARKERS[0], label=str("Covid - rack " + df_covid.columns[0].split("n")[0]))
+            ax_arr[0].plot(df_non_covid_aggr, color=COLORS[1], marker=MARKERS[1], label=str("Non-covid - rack " + df_covid.columns[0].split("n")[0]))
+            ax_components(ax_arr[0], subplot=" aggregated values")
+
+            for i in range(1, col_len):                
+                curr_node_covid = df_rack_covid.iloc[:, i-1:i]
+                curr_node_non_covid = df_rack_non_covid.iloc[:, i-1:i]
+
+                ax_arr[i].plot(curr_node_covid, label=str("Covid - node " + curr_node_covid.columns[0]), color=COLORS[0], marker=MARKERS[0])
+                ax_arr[i].plot(curr_node_non_covid, label=str("Non-covid - node " + curr_node_non_covid.columns[0]), color=COLORS[1], marker=MARKERS[1])
+                ax_components(ax_arr[i])
 
         # Custom period; nodes are default CPU vs GPU
         elif 'df_cpu' in df_keys:
@@ -354,7 +378,7 @@ class GenerateCustomGraph:
 
         elif 'df_rack_covid' in df_keys:
             df_covid = df_dict['df_rack_covid'][0]
-            df_non_covid = df_dict['df_rack'][0]
+            df_non_covid = df_dict['df_rack_non_covid'][0]
 
             df_covid = get_time_df(df_covid)
             df_non_covid = get_time_df(df_non_covid)
@@ -362,10 +386,22 @@ class GenerateCustomGraph:
             df_covid_aggr = df_covid.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack 
             df_non_covid_aggr = df_non_covid.aggregate(func=sum, axis=1) # Aggregate the nodes in the rack 
 
-            _, ax = plt.subplots()
-            ax.plot(df_covid_aggr, label=df.columns[0].split("n")[0] + " covid", c=COLORS[0], marker=MARKERS[0])
-            ax.plot(df_non_covid_aggr, label=df.columns[0].split("n")[0] + " non-covid", c=COLORS[1], marker=MARKERS[1])
-            ax_components(ax)
+            col_len = len(df_covid.columns) + 1 # Plus 1 is for 1 additional plot: Aggregate
+
+            # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+
+            ax_arr[0].plot(df_covid_aggr, color=COLORS[0], marker=MARKERS[0], label=str("Covid - rack " + df_covid.columns[0].split("n")[0]))
+            ax_arr[0].plot(df_non_covid_aggr, color=COLORS[1], marker=MARKERS[1], label=str("Non-covid - rack " + df_covid.columns[0].split("n")[0]))
+            ax_components(ax_arr[0])
+
+            for i in range(1, col_len):                
+                curr_node_covid = df_covid.iloc[:, i-1:i]
+                curr_node_non_covid = df_non_covid.iloc[:, i-1:i]
+
+                ax_arr[i].plot(curr_node_covid, label=str("Covid - node " + curr_node_covid.columns[0]), color=COLORS[0], marker=MARKERS[0])
+                ax_arr[i].plot(curr_node_non_covid, label=str("Non-covid - node " + curr_node_non_covid.columns[0]), color=COLORS[1], marker=MARKERS[1])
+                ax_components(ax_arr[i])
 
         # Custom period; nodes are default CPU vs GPU
         elif 'df_cpu' in df_keys:
@@ -398,9 +434,8 @@ class GenerateCustomGraph:
         def get_custom_values(df):
             values = np.array([])
             for column in df.columns:
-                arr = df[column].values
-                mask = (np.isnan(arr) | (arr < 0))
-                arr = arr[~mask]  # Filter out NaN values and less than 0
+                vals = df[column].values
+                arr = arr[~val]  # Filter out NaN values and less than 0
                 values = np.append(values, arr)
 
             return values
@@ -497,5 +532,3 @@ class GenerateCustomGraph:
         self.__save_formatted_fig(analysis_type="cdf")
         if SHOW_PLOT:
             plt.show()
-
-

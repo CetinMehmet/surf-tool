@@ -1,9 +1,10 @@
 import numpy as np
-import sys, json
+import sys, json, os, pyarrow
 
-sys.path.insert(1, '/Users/cetinmehmet/Desktop/surfsara-tool/parse_metric')
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
-sys.path.insert(3, '/Users/cetinmehmet/Desktop/surfsara-tool/analysis')
+curr_path = os.getcwd() + '/surfsara-tool'
+sys.path.insert(1, curr_path + '/parse_metric')
+sys.path.insert(2, curr_path + '/statistics_scripts')
+sys.path.insert(3, curr_path + '/analysis')
 
 from diurnal_analysis import DiurnalAnalysis
 from parse_metric import ParseMetric
@@ -24,9 +25,22 @@ class DefaultAnalysis(object):
         self.second_parquet = kargs['second_parquet'] if kargs['second_parquet'] else print("No second parquet passed")
     
         # Get parquet data and load to df
+        # df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
+        
+        # Get parquet data and load to df
         df = Metric.get_df(parquet, self.node_parquets).replace(-1, np.NaN)
+        # df = pd.read_parquet("/Users/cetinmehmet/Desktop/encryptedParq/surfsara_power_usage")
         df.sort_index(inplace=True)
-        # Custom nodes aren't specified, so we take the whole node set
+
+
+        if self.second_parquet is not None:
+            if self.second_parquet == "node_memory_MemTotal" and self.parquet == "node_memory_MemFree":
+                df2 = Metric.get_df(self.second_parquet, self.node_parquets).replace(-1, np.NaN)
+                df = 1 - (df/df2) # Get utilized fraction for memory
+                self.ylabel="Utilized fraction"
+            else:
+                print("Second parquet doesn't make sense")
+                exit(1)
 
         self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
 
@@ -35,7 +49,7 @@ class DefaultAnalysis(object):
         self.df_gpu_covid, self.df_gpu_non_covid = ParseMetric().covid_non_covid(self.df_gpu)
 
           # Load json file
-        with open("/Users/cetinmehmet/Desktop/surfsara-tool/analysis/metric.json", 'r') as f:
+        with open(curr_path + "/analysis/metric.json", 'r') as f:
             metric_json = json.load(f)
 
         # Assign the components of the plot

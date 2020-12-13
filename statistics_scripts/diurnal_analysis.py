@@ -1,10 +1,12 @@
 import pandas as pd
 import sys
 import matplotlib.pyplot as plt
-import pytz
+import pytz, os
 import numpy as np
 
-sys.path.insert(2, '/Users/cetinmehmet/Desktop/surfsara-tool/statistics_scripts')
+curr_path = os.getcwd() + '/surfsara-tool'
+sys.path.insert(1, curr_path + '/statistics_scripts')
+
 
 from generate_default_graph import GenerateDefaultGraph
 
@@ -80,7 +82,6 @@ class DiurnalAnalysis:
         df_per_day_per_node = df.groupby(["day", "hour"]).mean() # seasonal aggregation per day of week 
         df_sum = df_per_day_per_node.aggregate(func=sum, axis=1)# Take aggregate of all the nodes
         df_sum.index = [hour for hour in range(0, DAY*7)]
-        
         return df_sum
 
     def get_daily_month_df(self, df, month):  
@@ -111,10 +112,10 @@ class DiurnalAnalysis:
         shareX=None, title=None, savefig_title=None
     ):
         # Get daily_per_seasonal diurnal analysis
-        df_cpu_covid = self.__get_daily_seasonal_df(df_cpu_dic['covid'])
-        df_cpu_non_covid = self.__get_daily_seasonal_df(df_cpu_dic['non_covid'])
         df_gpu_covid = self.__get_daily_seasonal_df(df_gpu_dic['covid'])
         df_gpu_non_covid = self.__get_daily_seasonal_df(df_gpu_dic['non_covid'])
+        df_cpu_covid = self.__get_daily_seasonal_df(df_cpu_dic['covid'])
+        df_cpu_non_covid = self.__get_daily_seasonal_df(df_cpu_dic['non_covid'])
 
         #TODO: Use functions after this part
         GenerateDefaultGraph(title=title, savefig_title=savefig_title, ylabel=ylabel).figure_daily_per_seasonal (
