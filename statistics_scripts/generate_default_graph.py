@@ -79,14 +79,14 @@ class GenerateDefaultGraph:
         self, df_cpu_dic, df_gpu_dic
     ):
 
-        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True)
+        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True, sharey=True)
 
         ax_cpu = self.__axes_daily_seasonal_plot(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
             df_non_covid=df_cpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " Generic nodes"
+            title="Power consumption Generic nodes"
         )
 
         ax_cpu_violin = self.__axes_daily_seasonal_violin(
@@ -100,7 +100,7 @@ class GenerateDefaultGraph:
             df_covid=df_gpu_dic["covid"], 
             df_non_covid=df_gpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " ML nodes"
+            title="Power consumption ML nodes"
         )
         ax_gpu_violin = self.__axes_daily_seasonal_violin(
             ax=ax_gpu_violin,
@@ -320,7 +320,9 @@ class GenerateDefaultGraph:
             return df
 
         df = normalize(df)
-        return max(df["pdf"].values)
+        index_max_pdf = df["pdf"].idxmax()
+        max_value = df.iloc[index_max_pdf]
+        return (max(df["pdf"].values), max_value["target"])
 
     def __get_converted_xticks(self, ax):
         """
@@ -345,12 +347,10 @@ class GenerateDefaultGraph:
         ax.plot(df_non_covid, marker="*", label="non-covid", color="steelblue")
         ax.set_ylim(0, )
         ax.set_title(title, fontsize=14)
-        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+        ax.legend(loc='lower center')
         ax.set_xlabel("Time [days]", fontsize=14)
-        # Move the 1e sign next to the ylabel
-        # ax.yaxis.offsetText.set_visible(False)
-        offset = ax.yaxis.get_offset_text()
-        ax.set_ylabel(ylabel + " " + offset.get_text())
+
+        ax.set_ylabel(ylabel)
         
         xcoords = [0] + [xcoord for xcoord in range(23, WEEK, DAY)]
         for xc in xcoords:
@@ -360,14 +360,13 @@ class GenerateDefaultGraph:
         
     def __axes_daily_seasonal_violin(self, ax, df_covid, df_non_covid):
         sns.violinplot(data=[df_covid.values, df_non_covid.values], ax=ax, palette=['lightcoral', 'steelblue'])
-        ax.set_ylabel(self.ylabel, fontsize=16)
         ax.set_ylim(0, )
         ax.tick_params(axis='both', which='major', labelsize=16)
         ax.tick_params(axis='both', which='minor', labelsize=14)
         ax.yaxis.tick_right()
         ax.set_xticklabels([" ", " "])
-        ax.text(x=0+0.15, y=0.7, s="{:.2f}".format(self.__get_max_pdf(df_covid)), fontsize=14, color="black")
-        ax.text(x=0.5+0.15, y=0.7, s="{:.2f}".format(self.__get_max_pdf(df_non_covid)), fontsize=14, color="black")
+        ax.text(x=0+0.15, y=self.__get_max_pdf(df_covid)[1] , s="{:.2f}".format(self.__get_max_pdf(df_covid)[0]), fontsize=14, color="black")
+        ax.text(x=0.75+0.15, y=self.__get_max_pdf(df_non_covid)[1], s="{:.2f}".format(self.__get_max_pdf(df_non_covid)[0]), fontsize=14, color="black")
         return ax
 
     # This function belongs to Laurens Versluis: https://github.com/lfdversluis
@@ -423,7 +422,6 @@ class GenerateDefaultGraph:
         )
         for i in range(0, len(rack_values), 2):
             ax.axvline(i + 1.5, lw=2, ls='dashed')
-
 
     def __get_rack_nodes(self, df):
         rack_nodes = {}
