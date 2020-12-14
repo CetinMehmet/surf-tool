@@ -322,7 +322,7 @@ class GenerateDefaultGraph:
         df = normalize(df)
         index_max_pdf = df["pdf"].idxmax()
         max_value = df.iloc[index_max_pdf]
-        return (max(df["pdf"].values), max_value["target"])
+        return (max_value["pdf"], max_value["target"])
 
     def __get_converted_xticks(self, ax):
         """
