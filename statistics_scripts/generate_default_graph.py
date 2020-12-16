@@ -407,15 +407,21 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=22)
-        ax.set_ylim(0, )
+        ax.set_ylim(0, 100)
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
-        ax.set_title(subtitle, fontsize=28)
+        ax.set_xlabel(subtitle, fontsize=22)
 
         skyblue_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
         moccasin_path =  mpatches.Patch(color='steelblue', label='non-covid (right)')
         ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
+
+        # Depcit the values that exceed 100 load
+        for index, val in enumerate(rack_values):
+            max_val = np.max(val)
+            if max_val > 100:
+                ax.text(x=index, y=101, s=max_val)
 
         ax.set_xticklabels(
             rack_names,
