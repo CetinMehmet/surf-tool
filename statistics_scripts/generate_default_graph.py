@@ -207,7 +207,7 @@ class GenerateDefaultGraph:
 
     def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic):
 
-        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(40, 35))
+        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(12, 32))
         self.__axes_rack_analysis(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
@@ -388,7 +388,8 @@ class GenerateDefaultGraph:
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_title(self.title + subtitle, fontsize=28)
+        ax.set_ylim(0, None)
+        ax.set_title(subtitle, fontsize=28)
         ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
         ax.set_xticklabels(rack_nodes.keys(), fontsize=24)
@@ -410,10 +411,10 @@ class GenerateDefaultGraph:
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
-        ax.set_title(self.title + subtitle, fontsize=28)
+        ax.set_title(subtitle, fontsize=28)
 
-        skyblue_patch = mpatches.Patch(color='deepskyblue', label='covid (left)')
-        moccasin_path =  mpatches.Patch(color='moccasin', label='non-covid (right)')
+        skyblue_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
+        moccasin_path =  mpatches.Patch(color='steelblue', label='non-covid (right)')
         ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
 
         ax.set_xticklabels(
