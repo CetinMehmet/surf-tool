@@ -79,7 +79,7 @@ class GenerateDefaultGraph:
         self, df_cpu_dic, df_gpu_dic
     ):
 
-        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True, sharey=True)
+        24), constrained_layout=True, sharey=True)
 
         ax_cpu = self.__axes_daily_seasonal_plot(
             ax=ax_cpu, 
@@ -108,9 +108,9 @@ class GenerateDefaultGraph:
             df_non_covid=df_gpu_dic["non_covid"],
         )
         ax_cpu.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
-        ax_cpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], fontsize=14)
+        ax_cpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], fontsize=12)
         ax_gpu.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
-        ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], fontsize=14)
+        ax_gpu.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], fontsize=12)
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100)
         
@@ -360,7 +360,7 @@ class GenerateDefaultGraph:
         ax.set_ylim(0, )
         ax.set_title(title, fontsize=14)
         ax.legend(loc='lower center')
-        ax.set_xlabel("Time [days]", fontsize=16)
+        ax.set_xlabel("Time [days]", fontsize=14)
 
         ax.set_ylabel(ylabel)
         
@@ -469,6 +469,10 @@ class GenerateDefaultGraph:
         ax.set_ylim(0, )
         ax.set_title(title)
         ax.set_ylabel(ylabel)
+        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+
+
+  ax.set_ylabel(ylabel)
         ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
 
 

@@ -13,7 +13,7 @@
             "savefig_title": "/disk_bytes_read/"
         },
         "node_load1": {
-            "title": "Load1",
+            "title": "",
             "ylabel": "Load1",
             "xlabel": "",
             "savefig_title": "/load1/"
@@ -37,13 +37,13 @@
             "savefig_title": "/memory_total/"
         },
         "surfsara_power_usage": {
-            "title": "Surfsara power usage",
-            "ylabel": "Power usage (watt)",
+            "title": "",
+            "ylabel": "Power consumption [W]",
             "xlabel": "",
             "savefig_title": "/surfsara_power_usage/"
         },
         "surfsara_ambient_temp": {
-            "title": "Sufsara ambient temperature",
+            "title": "Ambient temperature",
             "ylabel": "Temperature (C)",
             "xlabel": "",
             "savefig_title": "/surfsara_ambient_temp/"

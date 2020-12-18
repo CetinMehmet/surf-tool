@@ -71,7 +71,9 @@ def main():
     # Default covid vs non-covid analysis
     else: 
         print("Default analysis (covid vs non-covid): ")
-        metric.default(metric1, second_parquet=metric2).all_analysis()
+        #metric.default(metric1, second_parquet=metric2)
+        metric.default(metric1, second_parquet=metric2).daily_seasonal_diurnal_pattern()
+        metric.default(metric1, second_parquet=metric2).rack_analysis()
     
     print("Done!")
     exit(0)
