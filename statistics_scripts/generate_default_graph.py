@@ -298,7 +298,7 @@ class GenerateDefaultGraph:
         df_cpu_mean = df_cpu.mean(axis=1)
         df_gpu_mean = df_gpu.mean(axis=1)
 
-        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(40, 20), constrained_layout=True)
+        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(12, 32), constrained_layout=True)
         set_components(ax=ax_cpu_sum, df=df_cpu_sum, label="Generic", color=COLORS[0], subtitle=" aggregated values ")
         set_components(ax=ax_gpu_sum, df=df_gpu_sum, label="ML", color=COLORS[1], subtitle=" aggregated values ")
         set_components(ax=ax_cpu_mean, df=df_cpu_mean, label="Generic", color=COLORS[0], subtitle=" mean values ")
@@ -359,7 +359,7 @@ class GenerateDefaultGraph:
         ax.plot(df_non_covid, marker="*", label="non-covid", color="steelblue")
         ax.set_ylim(0, )
         ax.set_title(title, fontsize=14)
-        ax.legend(loc='lower center')
+        ax.legend(loc='upper left')
         ax.set_xlabel("Time [days]", fontsize=16)
 
         ax.set_ylabel(ylabel)
@@ -408,7 +408,7 @@ class GenerateDefaultGraph:
         rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
         rack_values = list()
         rack_names = list()
-        violin_width = 2 if subtitle == " ML racks" else 8
+        violin_width = 1 if subtitle == " ML racks" else 8
         
         for rack, columns in rack_nodes.items():
             arr_covid = self.__get_custom_values(df_covid[list(columns)])
@@ -433,7 +433,7 @@ class GenerateDefaultGraph:
         for index, val in enumerate(rack_values):
             max_val = np.amax(val)
             if max_val > 100:
-                ax.text(x=index-0.2, y=102, s=str(round(max_val, 1)), fontsize=15, color="black", va="center")
+                ax.text(x=index-0.21, y=102, s=str(int(max_val)), fontsize=18, color="black", va="center")
             #ax.text(x=index, y=99, s="some shit", fontsize=14, color="black", va="center")
 
         ax.set_xticklabels(
