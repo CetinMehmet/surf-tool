@@ -25,8 +25,8 @@
             "savefig_title": "/memory_cached/"
         },
         "node_memory_MemFree": {
-            "title": "Memory(RAM) utilization",
-            "ylabel": "GB",
+            "title": "RAM utilization",
+            "ylabel": "[GB]",
             "xlabel": "",
             "savefig_title": "/memory_util/"
         },

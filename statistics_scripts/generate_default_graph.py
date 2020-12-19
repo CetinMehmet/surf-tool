@@ -254,9 +254,9 @@ class GenerateDefaultGraph:
 
     def CDF_plot(self, ax_cpu_dic, ax_gpu_dic):
         def set_components(ax, subtitle):
-            ax.set_title(self.title + subtitle)
+            ax.set_title(subtitle)
             ax.set_ylabel("Density")
-            ax.set_xlabel(self.ylabel)
+            ax.set_xlabel(self.title + " " + self.ylabel)
             ax.legend(loc='lower right')
         
         fig, (ax_cpu, ax_gpu) = plt.subplots(2, 1)
@@ -408,7 +408,7 @@ class GenerateDefaultGraph:
         rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
         rack_values = list()
         rack_names = list()
-        violin_width = 1 if subtitle == " ML racks" else 8
+        violin_width = 1.15 if subtitle == " ML racks" else 1.6
         
         for rack, columns in rack_nodes.items():
             arr_covid = self.__get_custom_values(df_covid[list(columns)])
@@ -418,8 +418,8 @@ class GenerateDefaultGraph:
             rack_names.append(rack)
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
-        ax.set_ylabel(self.ylabel, fontsize=22)
-        ax.set_ylim(0, 100)
+        ax.set_ylabel(self.ylabel, fontsize=24)
+        ax.set_ylim(0, )
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
@@ -430,10 +430,10 @@ class GenerateDefaultGraph:
         ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
 
         # Depcit the values that exceed 100 load
-        for index, val in enumerate(rack_values):
-            max_val = np.amax(val)
-            if max_val > 100:
-                ax.text(x=index-0.21, y=102, s=str(int(max_val)), fontsize=18, color="black", va="center")
+        # for index, val in enumerate(rack_values):
+        #    max_val = np.amax(val)
+        #    if max_val > 100:
+        #        ax.text(x=index-0.21, y=102, s=str(int(max_val)), fontsize=18, color="black", va="center")
             #ax.text(x=index, y=99, s="some shit", fontsize=14, color="black", va="center")
 
         ax.set_xticklabels(
