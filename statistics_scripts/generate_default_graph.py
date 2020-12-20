@@ -166,14 +166,15 @@ class GenerateDefaultGraph:
     def figure_hourly_seasonal(
         self, df_cpu_dic, df_gpu_dic
     ):
-        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True)
+        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), sharey=True, constrained_layout=True)
 
         self.__axes_hourly_plot(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
             df_non_covid=df_cpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " Generic nodes"
+            title="Generic nodes",
+            xlabel="Time [hours]"
         )
         self.__axes_daily_seasonal_violin(
             ax=ax_cpu_violin,
@@ -181,24 +182,29 @@ class GenerateDefaultGraph:
             df_non_covid=df_cpu_dic["non_covid"]
         )
 
-        self.ax_gpu = self.__axes_hourly_plot(
+        self.__axes_hourly_plot(
             ax=ax_gpu, 
             df_covid=df_gpu_dic["covid"], 
             df_non_covid=df_gpu_dic["non_covid"], 
             ylabel=self.ylabel,
-            title=self.title + " ML nodes",
-            xlabel="Hours"
+            title="ML nodes",
+            xlabel="Time [hours]"
         )
         self.__axes_daily_seasonal_violin(
             ax=ax_gpu_violin,
             df_covid=df_gpu_dic["covid"],
             df_non_covid=df_gpu_dic["non_covid"]
         )
-
-        ax_cpu.set_xticks([hour for hour in range(0, 24, 3)])
-        ax_cpu.set_xticklabels([hour for hour in range(0, 24, 3)])
-        ax_gpu.set_xticks([hour for hour in range(0, 24, 3)])
-        ax_gpu.set_xticklabels([hour for hour in range(0, 24, 3)])
+        def set_ticks(ax):
+            ax.set_xticks([i for i in range(24)], minor=True)
+            ax.tick_params('x', length=12, width=2, which='major')
+            ax.tick_params('x', length=8, width=1, which='minor')
+        
+        ax_cpu.set_xticklabels([hour for hour in range(-5, 24, 5)], fontsize=15)
+        # ax_gpu.set_xticks([hour for hour in range(0, 24, 3)])
+        ax_gpu.set_xticklabels([hour for hour in range(-5, 24, 5)], fontsize=15)
+        set_ticks(ax_cpu)
+        set_ticks(ax_gpu)
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
@@ -349,8 +355,8 @@ class GenerateDefaultGraph:
         ax.set_ylim(0, )
         ax.set_title(title)
         ax.set_ylabel(ylabel)
-        ax.set_xlabel(xlabel)
-        ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
+        ax.set_xlabel("Time [hours]", fontsize=16)
+        ax.legend(loc='center')
 
         return ax
 
@@ -377,8 +383,8 @@ class GenerateDefaultGraph:
         ax.tick_params(axis='both', which='minor', labelsize=14)
         ax.yaxis.tick_right()
         ax.set_xticklabels([" ", " "])
-        ax.text(x=0.4, y=self.__get_max_pdf(df_covid)[1] , s="{:.2f}".format(self.__get_max_pdf(df_covid)[0]), fontsize=13, color="black")
-        ax.text(x=1+0.35, y=self.__get_max_pdf(df_non_covid)[1], s="{:.2f}".format(self.__get_max_pdf(df_non_covid)[0]), fontsize=13, color="black")
+        ax.text(x=-0.48, y=self.__get_max_pdf(df_covid)[1] , s="{:.2f}".format(self.__get_max_pdf(df_covid)[0]), fontsize=13, color="black")
+        ax.text(x=1-0.55, y=self.__get_max_pdf(df_non_covid)[1], s="{:.2f}".format(self.__get_max_pdf(df_non_covid)[0]), fontsize=13, color="black")
         return ax
 
     # This function belongs to Laurens Versluis: https://github.com/lfdversluis
