@@ -88,6 +88,7 @@ class GenerateCustomGraph:
             df.sort_index(inplace=True)
 
             fig, ax_arr = plt.subplots(len(df.columns), 1, constrained_layout=True, figsize=(11, 5 * len(df.columns)))
+            ax_arr = fig.axes
 
             for i in range(len(df.columns)):                
                 curr_node = df.iloc[:, i:i+1]
@@ -115,6 +116,7 @@ class GenerateCustomGraph:
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
             fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
+            ax_arr = fig.axes
 
             ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + "aggregated load1"))
             ax_arr[1].plot(df_mean, color=COLORS[1], label=str("Rack " + "mean load1"))
@@ -200,6 +202,7 @@ class GenerateCustomGraph:
             df = get_time_df(df)
             
             fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True)
+            ax_arr = fig.axes
 
             for i in range(len(df.columns)):
                 # Must remove the brackets by getting [0] of list
@@ -218,6 +221,7 @@ class GenerateCustomGraph:
             df_non_covid = get_time_df(df_non_covid)
 
             fig, ax_arr = plt.subplots(len(df_covid.columns), 1, constrained_layout=True)
+            ax_arr = fig.axes
 
             for i in range(len(df_covid.columns)):
                 ax_arr[i].plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[0], marker=MARKERS[0])
@@ -235,6 +239,7 @@ class GenerateCustomGraph:
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
             fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
+            ax_arr = fig.axes
 
             ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + "aggregated load1"))
             ax_components(ax_arr[0])
@@ -260,6 +265,7 @@ class GenerateCustomGraph:
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
             fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
+            ax_arr = fig.axes
 
             ax_arr[0].plot(df_covid_aggr, color=COLORS[0], marker=MARKERS[0], label=str("Covid - rack " + df_covid.columns[0].split("n")[0]))
             ax_arr[0].plot(df_non_covid_aggr, color=COLORS[1], marker=MARKERS[1], label=str("Non-covid - rack " + df_covid.columns[0].split("n")[0]))
@@ -332,6 +338,8 @@ class GenerateCustomGraph:
             df = get_time_df(df)
             
             fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True)
+            ax_arr = fig.axes
+
             for i in range(len(df.columns)):
                 # Must remove the brackets by getting [0] of list
                 curr_node = df.iloc[:, i:i+1]
@@ -349,6 +357,8 @@ class GenerateCustomGraph:
             df_non_covid = get_time_df(df_non_covid)
             
             fig, ax_arr = plt.subplots(len(df_covid.columns), 1, sharex=True, constrained_layout=True)
+            ax_arr = fig.axes
+
             for i in range(len(df_covid.columns)):
                 ax_arr[i].plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[0], marker=MARKERS[0])
                 ax_arr[i].plot(df_non_covid.iloc[:, i:i+1], label=df_non_covid.iloc[:, i:i+1].columns[0] + " non-covid", color=COLORS[1], marker=MARKERS[1])
@@ -365,6 +375,7 @@ class GenerateCustomGraph:
             cols = len(df.columns) + 2
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
             fig, ax_arr = plt.subplots(cols, 1, sharex=True, constrained_layout=True, figsize=(11, 5 * cols))
+            ax_arr = fig.axes
 
             ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + df.columns[0].split("n")[0]) + " aggregated load1")
             ax_arr[1].plot(df_mean, color=COLORS[1], label=str("Rack " + df.columns[0].split("n")[0]) + " mean load1")
@@ -390,6 +401,7 @@ class GenerateCustomGraph:
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
             fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
+            ax_arr = fig.axes
 
             ax_arr[0].plot(df_covid_aggr, color=COLORS[0], marker=MARKERS[0], label=str("Covid - rack " + df_covid.columns[0].split("n")[0]))
             ax_arr[0].plot(df_non_covid_aggr, color=COLORS[1], marker=MARKERS[1], label=str("Non-covid - rack " + df_covid.columns[0].split("n")[0]))
@@ -435,7 +447,7 @@ class GenerateCustomGraph:
             values = np.array([])
             for column in df.columns:
                 vals = df[column].values
-                arr = arr[~val]  # Filter out NaN values and less than 0
+                arr = arr[~vals]  # Filter out NaN values and less than 0
                 values = np.append(values, arr)
 
             return values
@@ -460,6 +472,7 @@ class GenerateCustomGraph:
             df.sort_index(inplace=True)
             self.title += self.timestamp
             fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True)
+            ax_arr = fig.axes
             for i in range(len(df.columns)):
                 # Must remove the brackets by getting [0] of list
                 curr_node = df.iloc[:, i:i+1]
@@ -472,6 +485,7 @@ class GenerateCustomGraph:
             df_non_covid = df_dict['df_non_covid'][0]
             
             fig, ax_arr = plt.subplots(len(df_covid.columns), 1, sharex=True, constrained_layout=True)
+            ax_arr = fig.axes
             for i in range(len(df_covid.columns)):
                 ax_arr[i].hist(get_custom_values(df_covid.iloc[:, i:i+1]), label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[0], density=True, histtype='step', bins=100, cumulative=True)
                 ax_arr[i].hist(get_custom_values(df_non_covid.iloc[:, i:i+1]), label=df_non_covid.iloc[:, i:i+1].columns[0] + " non-covid", color=COLORS[1], density=True, histtype='step', bins=100, cumulative=True)
