@@ -16,30 +16,6 @@ sys.path.insert(3, '/home/cmt2002/surfsara-tool/analysis')
 from parse_metric import ParseMetric
 
 
-"""
-    Since color blinds may also be using the tool, no red or green colors shall be used for any plot
-"""
-
-
-
-"""
-    Spearman:
-        - Is there a statistically significant relationship between participants
-        - The assumptions of the Spearman correlation are that data must be at least ordinal,
-        and the scores on one variable must be monotonically related to the other variable.
-
-    Pearson:
-        - Is used to measure the degree of the relationship between linearly related variables.
-        - Is there a statistically significant relationship.
-        - For the Pearson r correlation, both variables should be normally distributed,
-        (normally distributed variables have a bell-shaped curve).
-        Other assumptions include linearity and homoscedasticity.
-        Linearity assumes a straight line relationship between each of the two variables,
-        and homoscedasticity assumes that data is equally distributed about the regression line.
-
-    Kendall:
-        - is a non-parametric test that measures the strength of dependence between two variables.
-"""
 
 DAY = 24
 MID_DAY = int(DAY / 2)
@@ -63,8 +39,9 @@ params = {
 
 pylab.rcParams.update(params)
 
-
+########### DEFAULT ANALYSIS: COVID VS NON-COVID + CPU vs GPU nodes ###########
 class GenerateDefaultGraph:
+
     def __init__(self, title, savefig_title, **kargs):
         from diurnal_analysis import DiurnalAnalysis
 
@@ -72,9 +49,7 @@ class GenerateDefaultGraph:
         self.title = title
         self.savefig_title = savefig_title
         self.ylabel = kargs['ylabel'] 
-        
-    ########### DEFAULT ANALYSIS: COVID VS NON-COVID + CPU vs GPU nodes ###########
-      ########### DEFAULT ANALYSIS: COVID VS NON-COVID + CPU vs GPU nodes ###########
+
     def figure_daily_per_seasonal(
         self, df_cpu_dic, df_gpu_dic
     ):
@@ -201,7 +176,6 @@ class GenerateDefaultGraph:
             ax.tick_params('x', length=8, width=1, which='minor')
         
         ax_cpu.set_xticklabels([hour for hour in range(-5, 24, 5)], fontsize=15)
-        # ax_gpu.set_xticks([hour for hour in range(0, 24, 3)])
         ax_gpu.set_xticklabels([hour for hour in range(-5, 24, 5)], fontsize=15)
         set_ticks(ax_cpu)
         set_ticks(ax_gpu)
