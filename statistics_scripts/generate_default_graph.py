@@ -187,7 +187,7 @@ class GenerateDefaultGraph:
 
     def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic):
 
-        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(32, 32))
+        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(32, 32), constrained_layout=True)
         self.__axes_rack_analysis(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
@@ -210,7 +210,6 @@ class GenerateDefaultGraph:
             subtitle=" ML racks")
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
-        plt.subplots_adjust(wspace=0.15, hspace=0.6, left=0.2, bottom=0.15, right=0.96, top=0.96)
         if SHOW_PLOT: 
             plt.show()
         plt.pause(0.0001)
@@ -373,6 +372,12 @@ class GenerateDefaultGraph:
 
             ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
+            
+            #if arr_covid.std() > 50:
+                #ax.text(x=index - w/2, y=51, s=str(round(arr_covid.std(), 1)), fontsize=18, color="black", va="center")
+            #if arr_non_covid.std() > 50:
+                #ax.text(x=index + w/2, y=51, s=str(round(arr_non_covid.std(), 1)), fontsize=18, color="black", va="center")
+                
             index += 1
 
         ax.tick_params(axis='both', which='major', labelsize=26)
@@ -388,7 +393,7 @@ class GenerateDefaultGraph:
         rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
         rack_values = list()
         rack_names = list()
-        violin_width = 1.15 if subtitle == " ML racks" else 2
+        violin_width = 0.95
         
         for rack, columns in rack_nodes.items():
             arr_covid = self.__get_custom_values(df_covid[list(columns)])
@@ -399,7 +404,7 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_ylim(0, )
+        ax.set_ylim(0, 50)
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
@@ -410,10 +415,10 @@ class GenerateDefaultGraph:
         ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
 
         # Depcit the values that exceed 100 load
-        # for index, val in enumerate(rack_values):
-        #    max_val = np.amax(val)
-        #    if max_val > 100:
-        #        ax.text(x=index-0.21, y=102, s=str(int(max_val)), fontsize=18, color="black", va="center")
+        for index, val in enumerate(rack_values):
+            max_val = np.amax(val)
+            if max_val > 100:
+                ax.text(x=index-0.17, y=51, s=str(int(max_val)), fontsize=18, color="black", va="center")
             #ax.text(x=index, y=99, s="some shit", fontsize=14, color="black", va="center")
 
         ax.set_xticklabels(
