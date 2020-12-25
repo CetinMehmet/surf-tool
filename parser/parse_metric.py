@@ -34,7 +34,8 @@ CPU_RACKS = {
 }
 
 GPU_RACKS = {
-    "r30", "r31", "r32", "r33", "r34"
+    "r28", "r29", "r30", "r31", "r32", "r33",
+    "r34", "r35", "r36", "r38"
 }
 
 class ParseMetric:
@@ -81,7 +82,7 @@ class ParseMetric:
         Return the cpu, and gpu partitioned dfs
         """
 
-        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node.split("n")[0] in CPU_RACKS]
+        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node.split("n")[0] not in GPU_RACKS]
         gpu_nodes = [gpu_node for gpu_node in df.columns if gpu_node.split("n")[0] in GPU_RACKS]
 
         return df[cpu_nodes], df[gpu_nodes]
