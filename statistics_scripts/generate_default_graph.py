@@ -363,8 +363,8 @@ class GenerateDefaultGraph:
 
     # This function belongs to Laurens Versluis: https://github.com/lfdversluis
     def __axes_rack_analysis(self, ax, df_covid, df_non_covid, subtitle):
-        rack_nodes = self.__get_rack_nodes(df_covid) #To get the rack nodes
-        index=0
+        rack_nodes = self.__get_rack_nodes(df_covid) # Get the rack nodes
+        index = 0
         w = 0.4
         ax1, ax2 = plt.axes, plt.axes
         for rack, columns in rack_nodes.items():

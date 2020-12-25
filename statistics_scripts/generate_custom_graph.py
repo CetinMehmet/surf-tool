@@ -87,7 +87,7 @@ class GenerateCustomGraph:
             df.index = pd.to_datetime(df.index, unit='s')
             df.sort_index(inplace=True)
 
-            fig, ax_arr = plt.subplots(len(df.columns), 1, constrained_layout=True, figsize=(30, 25))
+            fig, ax_arr = plt.subplots(len(df.columns), 1, constrained_layout=True, figsize=(11, 5 * len(df.columns)))
 
             for i in range(len(df.columns)):                
                 curr_node = df.iloc[:, i:i+1]
@@ -114,7 +114,7 @@ class GenerateCustomGraph:
             col_len = len(df.columns) + 2 # Plus 2 is for 2 additional plots: Mean and Aggregate
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
-            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
 
             ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + "aggregated load1"))
             ax_arr[1].plot(df_mean, color=COLORS[1], label=str("Rack " + "mean load1"))
@@ -234,7 +234,7 @@ class GenerateCustomGraph:
             col_len = len(df.columns) + 1 # Plus 1 is for 1 additional plot: Aggregate
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
-            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
 
             ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + "aggregated load1"))
             ax_components(ax_arr[0])
@@ -259,7 +259,7 @@ class GenerateCustomGraph:
             col_len = len(df_covid.columns) + 1 # Plus 2 is for 2 additional plots: Aggregate covid and non-covid
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
-            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
 
             ax_arr[0].plot(df_covid_aggr, color=COLORS[0], marker=MARKERS[0], label=str("Covid - rack " + df_covid.columns[0].split("n")[0]))
             ax_arr[0].plot(df_non_covid_aggr, color=COLORS[1], marker=MARKERS[1], label=str("Non-covid - rack " + df_covid.columns[0].split("n")[0]))
@@ -364,7 +364,7 @@ class GenerateCustomGraph:
 
             cols = len(df.columns) + 2
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
-            fig, ax_arr = plt.subplots(cols, 1, sharex=True, constrained_layout=True, figsize=(20, 10 * cols))
+            fig, ax_arr = plt.subplots(cols, 1, sharex=True, constrained_layout=True, figsize=(11, 5 * cols))
 
             ax_arr[0].plot(df_aggr, color=COLORS[1], label=str("Rack " + df.columns[0].split("n")[0]) + " aggregated load1")
             ax_arr[1].plot(df_mean, color=COLORS[1], label=str("Rack " + df.columns[0].split("n")[0]) + " mean load1")
@@ -389,7 +389,7 @@ class GenerateCustomGraph:
             col_len = len(df_covid.columns) + 1 # Plus 1 is for 1 additional plot: Aggregate
 
             # Plot all the nodes in the rack + a graph for the mean of the rack and aggregated value
-            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(20, 10 * col_len))
+            fig, ax_arr = plt.subplots(col_len, 1, constrained_layout=True, figsize=(11, 5 * col_len))
 
             ax_arr[0].plot(df_covid_aggr, color=COLORS[0], marker=MARKERS[0], label=str("Covid - rack " + df_covid.columns[0].split("n")[0]))
             ax_arr[0].plot(df_non_covid_aggr, color=COLORS[1], marker=MARKERS[1], label=str("Non-covid - rack " + df_covid.columns[0].split("n")[0]))

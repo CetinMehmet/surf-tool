@@ -81,7 +81,7 @@ class ParseMetric:
         Return the cpu, and gpu partitioned dfs
         """
 
-        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node.split("n")[0] not in GPU_RACKS]
+        cpu_nodes = [cpu_node for cpu_node in df.columns if cpu_node.split("n")[0] in CPU_RACKS]
         gpu_nodes = [gpu_node for gpu_node in df.columns if gpu_node.split("n")[0] in GPU_RACKS]
 
         return df[cpu_nodes], df[gpu_nodes]
