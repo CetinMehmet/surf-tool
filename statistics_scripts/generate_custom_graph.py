@@ -446,8 +446,9 @@ class GenerateCustomGraph:
         def get_custom_values(df):
             values = np.array([])
             for column in df.columns:
-                vals = df[column].values
-                arr = arr[~vals]  # Filter out NaN values and less than 0
+                arr = df[column].values
+                mask = (np.isnan(arr) | (arr < 0))
+                arr = arr[~mask]  # Filter out NaN values and less than 0                                                                                    
                 values = np.append(values, arr)
 
             return values

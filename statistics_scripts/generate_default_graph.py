@@ -383,7 +383,7 @@ class GenerateDefaultGraph:
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_ylabel(self.ylabel, fontsize=24)
         ax.set_ylim(0, 100)
-        ax.set_xlabel(subtitle, fontsize=22)
+        ax.set_xlabel(subtitle, fontsize=24)
         ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
         ax.set_xticklabels(rack_nodes.keys(), fontsize=24)
@@ -407,7 +407,7 @@ class GenerateDefaultGraph:
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
-        ax.set_xlabel(subtitle, fontsize=22)
+        ax.set_xlabel(subtitle, fontsize=24)
 
         skyblue_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
         moccasin_path =  mpatches.Patch(color='steelblue', label='non-covid (right)')

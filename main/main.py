@@ -67,7 +67,7 @@ def main():
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).all_analysis()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).cdf()
-        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).daily_seasonal_diurnal_pattern()
+        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).all_analysis()
     # Default covid vs non-covid analysis
     else: 
         print("Default analysis (covid vs non-covid): ")
