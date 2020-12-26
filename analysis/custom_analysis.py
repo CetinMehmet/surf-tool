@@ -189,8 +189,8 @@ class CustomAnalysis(object):
         GenerateTable(savefig_title=self.savefig_title, title=self.title, period=self.period).custom_table(self.df_dict)
 
     def all_analysis(self):
-        self.hourly_seasonal_diurnal_pattern()
         self.cdf()
         self.create_table()
         self.entire_period_analysis()
+        self.hourly_seasonal_diurnal_pattern()
         self.daily_seasonal_diurnal_pattern()

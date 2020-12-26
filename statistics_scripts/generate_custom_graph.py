@@ -93,9 +93,11 @@ class GenerateCustomGraph:
             for i in range(len(df.columns)):                
                 curr_node = df.iloc[:, i:i+1]
                 ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i])
-                mean_val = round(curr_node.mean(axis=0).values[0], 2)
-                median_val = round(curr_node.median(axis=0).values[0], 2)
-                median_val2 = round(curr_node[curr_node.values > 0].median(axis=0).values[0], 2)
+                print("VAL")
+                print(curr_node.mean())
+                mean_val = curr_node.mean(axis=0).values[0]
+                median_val = curr_node.median(axis=0).values[0]
+                median_val2 = curr_node[curr_node.values > 0].median(axis=0).values[0]
                 ax_arr[i].axhline(y=mean_val, c='black', ls=':', lw=4, label="mean: " + str(mean_val))
                 ax_arr[i].axhline(y=median_val, c='black', ls='--', lw=4, label="median: " + str(median_val))
                 ax_arr[i].axhline(y=median_val2, c='gray', ls='-', lw=4, label="median (zeros filtered): " + str(median_val2))
@@ -201,7 +203,7 @@ class GenerateCustomGraph:
             df.sort_index(inplace=True)
             df = get_time_df(df)
             
-            fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True)
+            fig, ax_arr = plt.subplots(len(df.columns), 1, figsize=(11, 5*len(df.columns)), sharex=True, constrained_layout=True)
             ax_arr = fig.axes
 
             for i in range(len(df.columns)):
@@ -296,6 +298,13 @@ class GenerateCustomGraph:
             ax_components(ax)
 
             self.title += " CPU vs GPU nodes"
+            
+        if "dt" in df.columns:
+            del df["dt"]
+        if "hour" in df.columns:
+            del df["hour"]
+        if "day" in df.columns:
+            del df["day"]
 
         self.title += self.timestamp
         self.__save_formatted_fig(analysis_type="daily_seasonal_diurnal")
@@ -337,7 +346,7 @@ class GenerateCustomGraph:
 
             df = get_time_df(df)
             
-            fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True)
+            fig, ax_arr = plt.subplots(len(df.columns), 1, figsize=(11, 5 * len(df.columns)), sharex=True, constrained_layout=True)
             ax_arr = fig.axes
 
             for i in range(len(df.columns)):
@@ -356,7 +365,7 @@ class GenerateCustomGraph:
             df_covid = get_time_df(df_covid)
             df_non_covid = get_time_df(df_non_covid)
             
-            fig, ax_arr = plt.subplots(len(df_covid.columns), 1, sharex=True, constrained_layout=True)
+            fig, ax_arr = plt.subplots(len(df_covid.columns), 1, figsize=(11, 5*len(df_covid.columns)), sharex=True, constrained_layout=True)
             ax_arr = fig.axes
 
             for i in range(len(df_covid.columns)):
@@ -434,6 +443,11 @@ class GenerateCustomGraph:
             self.title += " CPU vs GPU nodes aggregated values "
 
         self.title += self.timestamp
+        if "hour" in df.columns:
+            del df["hour"]
+        if "dt" in df.columns:
+            del df["dt"]
+
         self.__save_formatted_fig(analysis_type="hourly_seasonal_diurnal")
         if SHOW_PLOT:
             plt.show()
@@ -445,8 +459,12 @@ class GenerateCustomGraph:
         # Get all the values in the df
         def get_custom_values(df):
             values = np.array([])
+            print("COLS:")
+            print(df.columns)
             for column in df.columns:
-                arr = df[column].values
+                arr = np.array(df[column].values)
+                print("ARR: ")
+                print(arr)
                 mask = (np.isnan(arr) | (arr < 0))
                 arr = arr[~mask]  # Filter out NaN values and less than 0                                                                                    
                 values = np.append(values, arr)
@@ -471,8 +489,11 @@ class GenerateCustomGraph:
         if 'df_custom' in df_keys:
             df = df_dict['df_custom'][0]
             df.sort_index(inplace=True)
+            if "dt" in df.columns:
+                del df["dt"]
+
             self.title += self.timestamp
-            fig, ax_arr = plt.subplots(len(df.columns), 1, sharex=True, constrained_layout=True)
+            fig, ax_arr = plt.subplots(len(df.columns), 1, figsize=(11, len(df.columns)*5) , sharex=True, constrained_layout=True)
             ax_arr = fig.axes
             for i in range(len(df.columns)):
                 # Must remove the brackets by getting [0] of list
