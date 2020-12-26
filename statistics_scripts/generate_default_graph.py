@@ -372,17 +372,17 @@ class GenerateDefaultGraph:
             ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
             
-            #if arr_covid.std() > 50:
-                #ax.text(x=index - w/2, y=51, s=str(round(arr_covid.std(), 1)), fontsize=18, color="black", va="center")
-            #if arr_non_covid.std() > 50:
-                #ax.text(x=index + w/2, y=51, s=str(round(arr_non_covid.std(), 1)), fontsize=18, color="black", va="center")
+            if arr_covid.std() > 100:
+                ax.text(x=index - w/2, y=101.5, s=str(round(arr_covid.std(), 1)), fontsize=20, color="black", va="center")
+            if arr_non_covid.std() > 100:
+                ax.text(x=index + w/2, y=101.5, s=str(round(arr_non_covid.std(), 1)), fontsize=20, color="black", va="center")
                 
             index += 1
 
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_ylim(0, None)
+        ax.set_ylim(0, 100)
         ax.set_xlabel(subtitle, fontsize=22)
         ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
@@ -392,7 +392,7 @@ class GenerateDefaultGraph:
         rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
         rack_values = list()
         rack_names = list()
-        violin_width = 0.95
+        violin_width = 0.8
         
         for rack, columns in rack_nodes.items():
             arr_covid = self.__get_custom_values(df_covid[list(columns)])
@@ -403,7 +403,7 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_ylim(0,50)
+        ax.set_ylim(0, 100)
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
@@ -417,7 +417,7 @@ class GenerateDefaultGraph:
         for index, val in enumerate(rack_values):
             max_val = np.amax(val)
             if max_val > 100:
-                ax.text(x=index-0.17, y=51, s=str(int(max_val)), fontsize=18, color="black", va="center")
+                ax.text(x=index-0.17, y=101.5, s=str(int(max_val)), fontsize=20, color="black", va="center")
             #ax.text(x=index, y=99, s="some shit", fontsize=14, color="black", va="center")
 
         ax.set_xticklabels(
