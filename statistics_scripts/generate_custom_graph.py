@@ -65,7 +65,7 @@ class GenerateCustomGraph:
             ax.set_ylim(0, )
             ax.set_xlabel("2020")
             ax.set_ylabel(self.ylabel)
-            ax.set_title(self.title)
+            ax.set_title(self.title + self.timestamp)
             ax.legend(loc="upper left")
             ax.set_xticklabels(labels=get_converted_xticks(ax))
 
@@ -162,6 +162,7 @@ class GenerateCustomGraph:
         elif 'df_cpu_covid' in df_keys:
             print("Not possible for this analysis type")
             exit(1)
+
         
         self.__save_formatted_fig(analysis_type="entire_period")
         if SHOW_PLOT:
@@ -179,7 +180,7 @@ class GenerateCustomGraph:
             return df
 
         def ax_components(ax, subplot=""):
-            ax.set_title(self.title + subplot)
+            ax.set_title(self.title + subplot + self.timestamp)
             ax.set_ylabel(self.ylabel)
             ax.set_ylim(0, )
             ax.set_xlabel("Days")
@@ -326,7 +327,7 @@ class GenerateCustomGraph:
             ax.set_xticks([i for i in range(24)], minor=True)
             ax.tick_params('x', length=12, width=2, which='major')
             ax.tick_params('x', length=8, width=1, which='minor')
-            ax.set_title(self.title)
+            ax.set_title(self.title + self.timestamp)
             ax.set_ylabel(self.ylabel)
             ax.set_ylim(0, )
             ax.set_xlabel("Hours")
@@ -478,7 +479,6 @@ class GenerateCustomGraph:
             ax.set_xlabel(self.ylabel)
             ax.legend(loc='lower right')
 
-        self.title = "CDF " + self.title
 
         # Get the df keys passed
         for k in df_dict:
