@@ -298,9 +298,8 @@ class GenerateDefaultGraph:
             arr = df[column].values
             mask = (np.isnan(arr) | (arr < 0))
         
-        arr = arr[~mask]  # Filter out NaN values and less than 0
-        arr = arr[~np.isnan(arr)]
-        values = np.append(values, arr)
+            arr = arr[~mask]  # Filter out NaN values and less than 0
+            values = np.append(values, arr)
     
         return values
 
@@ -404,7 +403,7 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_ylim(0, 50)
+        ax.set_ylim(0,50)
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
