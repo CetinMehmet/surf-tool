@@ -43,7 +43,7 @@
             "savefig_title": "/surfsara_power_usage/"
         },
         "surfsara_ambient_temp": {
-            "title": "Ambient temperature",
+            "title": "",
             "ylabel": "Temperature [C]",
             "xlabel": "",
             "savefig_title": "/surfsara_ambient_temp/"

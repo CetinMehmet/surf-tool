@@ -4,7 +4,7 @@ from pathlib import Path
 import matplotlib.pylab as pylab
 import numpy as np
 import pandas as pd
-
+import datetime
 
 curr_path = os.getcwd() + '/surfsara-tool'
 sys.path.insert(1, curr_path + '/parser')
@@ -31,7 +31,7 @@ MID_DAY = int(DAY / 2)
 WEEK = 7 * DAY
 TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 MARKERS = ['s', '*', 'o', 'v', '<', 'p', '.', 'd']
-COLORS = ['steelblue', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+COLORS = ['lightcoral', 'steelblue', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 SHOW_PLOT = False
 
 
@@ -43,7 +43,7 @@ class GenerateCustomGraph:
         self.ylabel = kargs['ylabel'] 
         self.period = kargs['period'] if kargs['period'] else print("")
         if self.period == "FULL":
-            self.timestamp = " full season "
+            self.timestamp = ""
         elif self.period == None:
             self.timestamp = ""
         else:
@@ -66,7 +66,7 @@ class GenerateCustomGraph:
             ax.set_xlabel("2020")
             ax.set_ylabel(self.ylabel)
             ax.set_title(self.title + self.timestamp)
-            ax.legend(loc="upper right", fontsize=18, markerscale=1.5)
+            ax.legend(loc="lower right", fontsize=16, markerscale=1.5)
             ax.set_xticklabels(labels=get_converted_xticks(ax))
 
         _, (ax) = plt.subplots( figsize=(18,10))
@@ -86,6 +86,8 @@ class GenerateCustomGraph:
             df = df_dict['df_custom'][0] # Must remove the brackets by getting [0] of list
             df.index = pd.to_datetime(df.index, unit='s')
             df.sort_index(inplace=True)
+            if "dt" in df.columns:
+                del df["dt"]
 
             fig, ax_arr = plt.subplots(len(df.columns), 1, constrained_layout=True, figsize=(11, 5 * len(df.columns)))
             ax_arr = fig.axes
@@ -94,16 +96,17 @@ class GenerateCustomGraph:
                 curr_node = df.iloc[:, i:i+1]
                 ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i])
                 print("VAL")
-                print(curr_node.mean())
+                print(curr_node.columns)
                 mean_val = round(curr_node.mean(axis=0).values[0], 1)
-                median_val = curr_node.median(axis=0).values[0]
-                median_val2 = curr_node[curr_node.values > 0].median(axis=0).values[0]
-                ax_arr[i].axhline(y=mean_val, c='black', ls=':', lw=4, label="mean: " + str(mean_val))
-                ax_arr[i].axhline(y=median_val, c='black', ls='--', lw=4, label="median: " + str(median_val))
-                ax_arr[i].axhline(y=median_val2, c='gray', ls='-', lw=4, label="median (zeros filtered): " + str(median_val2))
+                median_val = round(curr_node.median(axis=0).values[0], 1)
+                #median_val2 = round(curr_node[curr_node.values > 0].median(axis=0).values[0],1)
+                ax_arr[i].axhline(y=mean_val, c='green', ls='-', lw=2, label="mean (" + str(mean_val)+ ")")
+                ax_arr[i].axhline(y=median_val, c=COLORS[1], ls='--', lw=2, label="median: (" + str(median_val) + ")")
+                #print(curr_node.index)
+                ax_arr[i].axvline(x=datetime.datetime.strptime('2020-02-27 00:00:00', '%Y-%m-%d %H:%M:%S'), c='skyblue', lw=1, ls='-')
+                #ax_arr[i].axhline(y=median_val2, c='gray', ls='-', lw=4, label="median (zeros filtered): " + str(median_val2))
                 ax_components(ax_arr[i])
 
-            self.title += str(" custom nodes")
                
          # Rack specified
         elif 'df_rack' in df_keys:
@@ -128,9 +131,9 @@ class GenerateCustomGraph:
             for i in range(2, col_len):                
                 curr_node = df.iloc[:, i-2:i-1]
                 ax_arr[i].plot(curr_node, label=str("Node " + curr_node.columns[0]), color=COLORS[i % len(COLORS)])
-                mean_val = round(curr_node.mean(axis=0).values[0], 2)
-                median_val = round(curr_node.median(axis=0).values[0], 2)
-                median_val2 = round(curr_node[curr_node.values > 0].median(axis=0).values[0], 2)
+                mean_val = round(curr_node.mean(axis=0).values[0], 1)
+                median_val = round(curr_node.median(axis=0).values[0], 1)
+                median_val2 = round(curr_node[curr_node.values > 0].median(axis=0).values[0], 1)
                 ax_arr[i].axhline(y=mean_val, c='black', ls=':', lw=4, label="mean: " + str(mean_val))
                 ax_arr[i].axhline(y=median_val, c='black', ls='--', lw=4, label="median: " + str(median_val))
                 ax_arr[i].axhline(y=median_val2, c='gray', ls='-', lw=4, label="median (zeros filtered): " + str(median_val2))
@@ -156,12 +159,12 @@ class GenerateCustomGraph:
         # Period not specified
         elif 'df_covid' in df_keys:
             print("Not possible for this analysis type")
-            exit(1)
+            
 
         # Nodes not specified
         elif 'df_cpu_covid' in df_keys:
             print("Not possible for this analysis type")
-            exit(1)
+            
 
         
         self.__save_formatted_fig(analysis_type="entire_period")
@@ -180,9 +183,10 @@ class GenerateCustomGraph:
             return df
 
         def del_time_cols(df):
-            del df["dt"]
-            del df["hour"]
-            del df["day"]
+            if "hour" in df.columns:
+                del df["hour"]
+            if "day" in df.columns:
+                del df["day"]
             df.reset_index()
 
         def ax_components(ax, subplot=""):
@@ -331,8 +335,8 @@ class GenerateCustomGraph:
             return df
 
         def del_time_cols(df):
-            del df["dt"]
-            del df["hour"]
+            if "hour" in df.columns:
+                del df["hour"]
 
         def ax_components(ax):
             ax.set_xticks([i for i in range(24)], minor=True)
