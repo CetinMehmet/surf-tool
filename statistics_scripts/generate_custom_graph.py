@@ -179,6 +179,12 @@ class GenerateCustomGraph:
             df.index = [hour for hour in range(0, 24*7)]
             return df
 
+        def del_time_cols(df):
+            del df["dt"]
+            del df["hour"]
+            del df["day"]
+            df.reset_index()
+
         def ax_components(ax, subplot=""):
             ax.set_title(self.title + subplot + self.timestamp)
             ax.set_ylabel(self.ylabel)
@@ -213,7 +219,8 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i % len(COLORS)], marker=MARKERS[i])
                 ax_components(ax_arr[i])
 
-            self.title += str(" custom nodes")
+            del_time_cols(df)
+
 
         # Nodes covid non covid
         if 'df_covid' in df_keys:
@@ -230,6 +237,9 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[0], marker=MARKERS[0])
                 ax_arr[i].plot(df_non_covid.iloc[:, i:i+1], label=df_non_covid.iloc[:, i:i+1].columns[0] + " non-covid", color=COLORS[1], marker=MARKERS[1])
                 ax_components(ax_arr[i])
+            
+            del_time_cols(df_covid)
+            del_time_cols(df_non_covid)
 
         # Rack specified
         elif 'df_rack' in df_keys:
@@ -252,7 +262,7 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(curr_node, label=str("Node " + curr_node.columns[0]), color=COLORS[i % len(COLORS)])
                 ax_components(ax_arr[i])
 
-            # ENDD
+            del_time_cols(df)
             
         elif 'df_rack_covid' in df_keys:
             df_covid = df_dict['df_rack_covid'][0]
@@ -282,6 +292,9 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(curr_node_non_covid, label=str("Non-covid - node " + curr_node_non_covid.columns[0]), color=COLORS[1], marker=MARKERS[1])
                 ax_components(ax_arr[i])
 
+            del_time_cols(df_rack_covid)
+            del_time_cols(df_rack_non_covid)
+
         # Custom period; nodes are default CPU vs GPU
         elif 'df_cpu' in df_keys:
             df_cpu = df_dict['df_cpu'][0]
@@ -298,14 +311,8 @@ class GenerateCustomGraph:
             ax.plot(df_gpu_aggr, label="GPU", color=COLORS[3], marker=MARKERS[3])
             ax_components(ax)
 
-            self.title += " CPU vs GPU nodes"
-            
-        if "dt" in df.columns:
-            del df["dt"]
-        if "hour" in df.columns:
-            del df["hour"]
-        if "day" in df.columns:
-            del df["day"]
+            del_time_cols(df_cpu)
+            del_time_cols(df_gpu)
 
         self.title += self.timestamp
         self.__save_formatted_fig(analysis_type="daily_seasonal_diurnal")
@@ -322,6 +329,10 @@ class GenerateCustomGraph:
 
             df = df.groupby("hour").mean()
             return df
+
+        def del_time_cols(df):
+            del df["dt"]
+            del df["hour"]
 
         def ax_components(ax):
             ax.set_xticks([i for i in range(24)], minor=True)
@@ -356,7 +367,7 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i], marker=MARKERS[i])
                 ax_components(ax_arr[i])
 
-            self.title += str(" custom nodes")
+            del_time_cols(df)
 
                 # Nodes covid non covid
         elif 'df_covid' in df_keys:
@@ -373,6 +384,9 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(df_covid.iloc[:, i:i+1], label=df_covid.iloc[:, i:i+1].columns[0] + " covid", color=COLORS[0], marker=MARKERS[0])
                 ax_arr[i].plot(df_non_covid.iloc[:, i:i+1], label=df_non_covid.iloc[:, i:i+1].columns[0] + " non-covid", color=COLORS[1], marker=MARKERS[1])
                 ax_components(ax_arr[i])
+
+            del_time_cols(df_covid)
+            del_time_cols(df_non_covid)
 
          # Rack specified
         elif 'df_rack' in df_keys:
@@ -396,6 +410,8 @@ class GenerateCustomGraph:
                 curr_node = df.iloc[:, i-2:i-1]
                 ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i % len(COLORS)])
                 ax_components(ax_arr[i])
+
+            del_time_cols(df)
 
         elif 'df_rack_covid' in df_keys:
             df_covid = df_dict['df_rack_covid'][0]
@@ -425,6 +441,9 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(curr_node_non_covid, label=str("Non-covid - node " + curr_node_non_covid.columns[0]), color=COLORS[1], marker=MARKERS[1])
                 ax_components(ax_arr[i])
 
+            del_time_cols(df_covid)
+            del_time_cols(df_non_covid)
+
         # Custom period; nodes are default CPU vs GPU
         elif 'df_cpu' in df_keys:
             df_cpu = df_dict['df_cpu'][0]
@@ -442,12 +461,10 @@ class GenerateCustomGraph:
             ax_components(ax)
 
             self.title += " CPU vs GPU nodes aggregated values "
+            del_time_cols(df_cpu)
+            del_time_cols(df_gpu)
 
         self.title += self.timestamp
-        if "hour" in df.columns:
-            del df["hour"]
-        if "dt" in df.columns:
-            del df["dt"]
 
         self.__save_formatted_fig(analysis_type="hourly_seasonal_diurnal")
         if SHOW_PLOT:
@@ -460,12 +477,9 @@ class GenerateCustomGraph:
         # Get all the values in the df
         def get_custom_values(df):
             values = np.array([])
-            print("COLS:")
             print(df.columns)
             for column in df.columns:
                 arr = np.array(df[column].values)
-                print("ARR: ")
-                print(arr)
                 mask = (np.isnan(arr) | (arr < 0))
                 arr = arr[~mask]  # Filter out NaN values and less than 0                                                                                    
                 values = np.append(values, arr)
@@ -489,8 +503,6 @@ class GenerateCustomGraph:
         if 'df_custom' in df_keys:
             df = df_dict['df_custom'][0]
             df.sort_index(inplace=True)
-            if "dt" in df.columns:
-                del df["dt"]
 
             self.title += self.timestamp
             fig, ax_arr = plt.subplots(len(df.columns), 1, figsize=(11, len(df.columns)*5) , sharex=True, constrained_layout=True)

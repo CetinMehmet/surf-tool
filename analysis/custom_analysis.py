@@ -190,10 +190,7 @@ class CustomAnalysis(object):
 
     def all_analysis(self):
         self.daily_seasonal_diurnal_pattern()
-        #self.daily_monthly_diurnal_pattern()
         self.hourly_seasonal_diurnal_pattern()
-        #self.hourly_monthly_diurnal_pattern()
-        #self.rack_analysis()
         self.entire_period_analysis()
         self.cdf()
         self.create_table()
