@@ -35,8 +35,8 @@ class DefaultAnalysis(object):
 
         if self.second_parquet is not None:
             if self.second_parquet == "node_memory_MemTotal" and self.parquet == "node_memory_MemFree":
-                df2 = Metric.get_df(self.second_parquet, self.node_parquets).replace(-1, np.NaN)
-                df = 1 - (df/df2) # Get utilized fraction for memory
+                df_total = Metric.get_df(self.second_parquet, self.node_parquets).replace(-1, np.NaN)
+                df = 100 * (1 - (df / df_total)) # Get utilized fraction for memory
                 self.ylabel="Utilized fraction"
             else:
                 print("Second parquet doesn't make sense")

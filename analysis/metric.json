@@ -25,8 +25,8 @@
             "savefig_title": "/memory_cached/"
         },
         "node_memory_MemFree": {
-            "title": "RAM utilization",
-            "ylabel": "[GB]",
+            "title": "",
+            "ylabel": "RAM utilization [%]",
             "xlabel": "",
             "savefig_title": "/memory_util/"
         },
@@ -44,7 +44,7 @@
         },
         "surfsara_ambient_temp": {
             "title": "Ambient temperature",
-            "ylabel": "Temperature (C)",
+            "ylabel": "Temperature [C]",
             "xlabel": "",
             "savefig_title": "/surfsara_ambient_temp/"
         }

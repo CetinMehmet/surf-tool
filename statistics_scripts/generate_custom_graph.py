@@ -31,7 +31,7 @@ MID_DAY = int(DAY / 2)
 WEEK = 7 * DAY
 TOOL_PATH = Path(os.path.abspath(__file__)).parent.parent
 MARKERS = ['s', '*', 'o', 'v', '<', 'p', '.', 'd']
-COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+COLORS = ['steelblue', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 SHOW_PLOT = False
 
 
@@ -66,7 +66,7 @@ class GenerateCustomGraph:
             ax.set_xlabel("2020")
             ax.set_ylabel(self.ylabel)
             ax.set_title(self.title + self.timestamp)
-            ax.legend(loc="upper left")
+            ax.legend(loc="upper right", fontsize=18, markerscale=1.5)
             ax.set_xticklabels(labels=get_converted_xticks(ax))
 
         _, (ax) = plt.subplots( figsize=(18,10))
@@ -95,7 +95,7 @@ class GenerateCustomGraph:
                 ax_arr[i].plot(curr_node, label=curr_node.columns[0], color=COLORS[i])
                 print("VAL")
                 print(curr_node.mean())
-                mean_val = curr_node.mean(axis=0).values[0]
+                mean_val = round(curr_node.mean(axis=0).values[0], 1)
                 median_val = curr_node.median(axis=0).values[0]
                 median_val2 = curr_node[curr_node.values > 0].median(axis=0).values[0]
                 ax_arr[i].axhline(y=mean_val, c='black', ls=':', lw=4, label="mean: " + str(mean_val))
@@ -186,7 +186,7 @@ class GenerateCustomGraph:
             ax.set_xlabel("Days")
             ax.set_xticks([tick for tick in range(MID_DAY-1, WEEK, DAY)])
             ax.set_xticklabels(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
-            ax.legend(loc="upper right")
+            ax.legend(loc="upper right", fontsize=18, markerscale=1.5)
             xcoords = [0] + [xcoord for xcoord in range(23, WEEK, DAY)]
             for xc in xcoords:
                 ax.axvline(x=xc, color="gray", lw=0.5)
@@ -331,7 +331,7 @@ class GenerateCustomGraph:
             ax.set_ylabel(self.ylabel)
             ax.set_ylim(0, )
             ax.set_xlabel("Hours")
-            ax.legend(loc="upper right")
+            ax.legend(loc="upper right", fontsize=18, markerscale=1.5)
 
         df_keys = []
 
@@ -477,7 +477,7 @@ class GenerateCustomGraph:
             ax.set_ylabel("Frequency")
             ax.set_xlim(0, )
             ax.set_xlabel(self.ylabel)
-            ax.legend(loc='lower right')
+            ax.legend(loc='lower right', fontsize=18, markerscale=1.5)
 
 
         # Get the df keys passed

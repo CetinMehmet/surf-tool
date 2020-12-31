@@ -42,9 +42,9 @@ class CustomAnalysis(object):
         df.sort_index(inplace=True)
 
         if self.second_parquet is not None:
-            df2 = Metric.get_df(self.second_parquet, self.node_parquets).replace(-1, np.NaN)
+            df_total = Metric.get_df(self.second_parquet, self.node_parquets).replace(-1, np.NaN)
             if self.second_parquet == "node_memory_MemTotal":
-                df = (df2 - df) / (1024 * 1024 * 1024) # Get utilized GB for memory
+                df = 100 * (1 - (df / df_total))  # Get utilization percentage
 
             else:
                 print("Second parquet doesn't make sense")
@@ -189,8 +189,11 @@ class CustomAnalysis(object):
         GenerateTable(savefig_title=self.savefig_title, title=self.title, period=self.period).custom_table(self.df_dict)
 
     def all_analysis(self):
+        self.daily_seasonal_diurnal_pattern()
+        #self.daily_monthly_diurnal_pattern()
+        self.hourly_seasonal_diurnal_pattern()
+        #self.hourly_monthly_diurnal_pattern()
+        #self.rack_analysis()
+        self.entire_period_analysis()
         self.cdf()
         self.create_table()
-        self.entire_period_analysis()
-        self.hourly_seasonal_diurnal_pattern()
-        self.daily_seasonal_diurnal_pattern()

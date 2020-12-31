@@ -54,7 +54,7 @@ class GenerateDefaultGraph:
         self, df_cpu_dic, df_gpu_dic
     ):
 
-        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True, sharey=True)
+        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(11, 10), constrained_layout=True, sharey=True)
 
         ax_cpu = self.__axes_daily_seasonal_plot(
             ax=ax_cpu, 
@@ -141,7 +141,7 @@ class GenerateDefaultGraph:
     def figure_hourly_seasonal(
         self, df_cpu_dic, df_gpu_dic
     ):
-        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(12, 8), sharey=True, constrained_layout=True)
+        _, ((ax_cpu, ax_cpu_violin), (ax_gpu, ax_gpu_violin)) = plt.subplots(2, 2, figsize=(11, 10), sharey=True, constrained_layout=True)
 
         self.__axes_hourly_plot(
             ax=ax_cpu, 
@@ -277,7 +277,7 @@ class GenerateDefaultGraph:
         df_cpu_mean = df_cpu.mean(axis=1)
         df_gpu_mean = df_gpu.mean(axis=1)
 
-        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(12, 32), constrained_layout=True)
+        fig, (ax_cpu_sum, ax_gpu_sum, ax_cpu_mean, ax_gpu_mean) = plt.subplots(4, 1, figsize=(11, 5*4), constrained_layout=True)
         set_components(ax=ax_cpu_sum, df=df_cpu_sum, label="Generic", color=COLORS[0], subtitle=" aggregated values ")
         set_components(ax=ax_gpu_sum, df=df_gpu_sum, label="ML", color=COLORS[1], subtitle=" aggregated values ")
         set_components(ax=ax_cpu_mean, df=df_cpu_mean, label="Generic", color=COLORS[0], subtitle=" mean values ")
@@ -337,7 +337,7 @@ class GenerateDefaultGraph:
         ax.plot(df_non_covid, marker="*", label="non-covid", color="steelblue")
         ax.set_ylim(0, )
         ax.set_title(title, fontsize=14)
-        ax.legend(loc='upper left')
+        ax.legend(loc='center')
         ax.set_xlabel("Time [days]", fontsize=16)
 
         ax.set_ylabel(ylabel)
@@ -372,17 +372,17 @@ class GenerateDefaultGraph:
             ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
             
-            if arr_covid.std() > 100:
-                ax.text(x=index - w/2, y=101.5, s=str(round(arr_covid.std(), 1)), fontsize=20, color="black", va="center")
-            if arr_non_covid.std() > 100:
-                ax.text(x=index + w/2, y=101.5, s=str(round(arr_non_covid.std(), 1)), fontsize=20, color="black", va="center")
+            #if arr_covid.std() > 100:
+                #ax.text(x=index - w/2, y=101.5, s=str(round(arr_covid.std(), 1)), fontsize=20, color="black", va="center")
+            #if arr_non_covid.std() > 100:
+                #ax.text(x=index + w/2, y=101.5, s=str(round(arr_non_covid.std(), 1)), fontsize=20, color="black", va="center")
                 
             index += 1
 
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_ylim(0, 100)
+        ax.set_ylim(0, )
         ax.set_xlabel(subtitle, fontsize=24)
         ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
@@ -403,7 +403,7 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=24)
-        ax.set_ylim(0, 100)
+        ax.set_ylim(0, )
         ax.tick_params(axis='both', which='major', labelsize=26)
         ax.tick_params(axis='both', which='minor', labelsize=22)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
@@ -414,10 +414,10 @@ class GenerateDefaultGraph:
         ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
 
         # Depcit the values that exceed 100 load
-        for index, val in enumerate(rack_values):
-            max_val = np.amax(val)
-            if max_val > 100:
-                ax.text(x=index-0.17, y=101.5, s=str(int(max_val)), fontsize=20, color="black", va="center")
+        #for index, val in enumerate(rack_values):
+            #max_val = np.amax(val)
+            #if max_val > 100:
+                #ax.text(x=index-0.17, y=101.5, s=str(int(max_val)), fontsize=20, color="black", va="center")
             #ax.text(x=index, y=99, s="some shit", fontsize=14, color="black", va="center")
 
         ax.set_xticklabels(
