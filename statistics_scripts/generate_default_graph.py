@@ -187,8 +187,8 @@ class GenerateDefaultGraph:
 
     def figure_rack_analysis(self, df_cpu_dic, df_gpu_dic):
 
-        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(32, 32), constrained_layout=True)
-        self.__axes_rack_analysis(
+        _, (ax_violin_cpu, ax_cpu, ax_violin_gpu, ax_gpu) = plt.subplots(4, 1, figsize=(24, 24), constrained_layout=True)
+        self.__axes_rack_barplot(
             ax=ax_cpu, 
             df_covid=df_cpu_dic["covid"], 
             df_non_covid=df_cpu_dic["non_covid"],
@@ -199,7 +199,7 @@ class GenerateDefaultGraph:
             df_non_covid=df_cpu_dic["non_covid"],
             subtitle=" Generic racks")
 
-        self.__axes_rack_analysis(ax_gpu, 
+        self.__axes_rack_barplot(ax_gpu, 
             df_covid=df_gpu_dic["covid"], 
             df_non_covid=df_gpu_dic["non_covid"],
             subtitle=" ML racks")
@@ -208,6 +208,11 @@ class GenerateDefaultGraph:
             df_covid=df_gpu_dic["covid"],
             df_non_covid=df_gpu_dic["non_covid"],
             subtitle=" ML racks")
+        
+        # Depict legend on top of the first plot
+        lightcoral_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
+        steelblue_patch =  mpatches.Patch(color='steelblue', label='non-covid (right)')
+        ax_violin_cpu.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.09), fontsize=28, ncol=2)
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
@@ -360,7 +365,7 @@ class GenerateDefaultGraph:
         return ax
 
     # This function belongs to Laurens Versluis: https://github.com/lfdversluis
-    def __axes_rack_analysis(self, ax, df_covid, df_non_covid, subtitle):
+    def __axes_rack_barplot(self, ax, df_covid, df_non_covid, subtitle):
         rack_nodes = self.__get_rack_nodes(df_covid) # Get the rack nodes
         index = 0
         w = 0.4
@@ -371,7 +376,6 @@ class GenerateDefaultGraph:
 
             ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
-            
             #if arr_covid.std() > 100:
                 #ax.text(x=index - w/2, y=101.5, s=str(round(arr_covid.std(), 1)), fontsize=20, color="black", va="center")
             #if arr_non_covid.std() > 100:
@@ -379,14 +383,14 @@ class GenerateDefaultGraph:
                 
             index += 1
 
-        ax.tick_params(axis='both', which='major', labelsize=26)
-        ax.tick_params(axis='both', which='minor', labelsize=22)
-        ax.set_ylabel(self.ylabel, fontsize=24)
+        ax.tick_params(axis='both', which='major', labelsize=32)
+        ax.tick_params(axis='both', which='minor', labelsize=32)
+        ax.set_ylabel(self.ylabel, fontsize=32)
         ax.set_ylim(0, )
-        ax.set_xlabel(subtitle, fontsize=24)
-        ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
+        ax.set_xlabel(subtitle, fontsize=30)
+        #ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
-        ax.set_xticklabels(rack_nodes.keys(), fontsize=24)
+        ax.set_xticklabels(rack_nodes.keys(), fontsize=32)
 
     def __axes_rack_violinplot(self, ax, df_covid, df_non_covid, subtitle, xlabel=None):
         rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
@@ -402,16 +406,16 @@ class GenerateDefaultGraph:
             rack_names.append(rack)
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
-        ax.set_ylabel(self.ylabel, fontsize=24)
+        ax.set_ylabel(self.ylabel, fontsize=32)
         ax.set_ylim(0, )
-        ax.tick_params(axis='both', which='major', labelsize=26)
-        ax.tick_params(axis='both', which='minor', labelsize=22)
+        ax.tick_params(axis='both', which='major', labelsize=32)
+        ax.tick_params(axis='both', which='minor', labelsize=32)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
-        ax.set_xlabel(subtitle, fontsize=24)
+        ax.set_xlabel(subtitle, fontsize=30)
 
-        skyblue_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
-        moccasin_path =  mpatches.Patch(color='steelblue', label='non-covid (right)')
-        ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=20)
+        #skyblue_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
+        #moccasin_path =  mpatches.Patch(color='steelblue', label='non-covid (right)')
+        #ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=22)
 
         # Depcit the values that exceed 100 load
         #for index, val in enumerate(rack_values):
@@ -422,7 +426,7 @@ class GenerateDefaultGraph:
 
         ax.set_xticklabels(
             rack_names,
-            ha='center', fontsize=24
+            ha='center', fontsize=32
         )
         for i in range(0, len(rack_values), 2):
             ax.axvline(i + 1.5, lw=2, ls='dashed')
