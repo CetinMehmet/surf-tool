@@ -212,7 +212,7 @@ class GenerateDefaultGraph:
         # Depict legend on top of the first plot
         lightcoral_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
         steelblue_patch =  mpatches.Patch(color='steelblue', label='non-covid (right)')
-        ax_violin_cpu.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.09), fontsize=28, ncol=2)
+        ax_violin_cpu.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.17), fontsize=28, ncol=2)
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
@@ -376,19 +376,18 @@ class GenerateDefaultGraph:
 
             ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
-            #if arr_covid.std() > 100:
-                #ax.text(x=index - w/2, y=101.5, s=str(round(arr_covid.std(), 1)), fontsize=20, color="black", va="center")
-            #if arr_non_covid.std() > 100:
-                #ax.text(x=index + w/2, y=101.5, s=str(round(arr_non_covid.std(), 1)), fontsize=20, color="black", va="center")
+            if arr_covid.std() > 100:
+                ax.text(x=index - w/2, y=102.2, s=str(round(arr_covid.std(), 1)), fontsize=22, color="black", va="center")
+            if arr_non_covid.std() > 100:
+                ax.text(x=index + w/2, y=102.2, s=str(round(arr_non_covid.std(), 1)), fontsize=22, color="black", va="center")
                 
             index += 1
 
         ax.tick_params(axis='both', which='major', labelsize=32)
         ax.tick_params(axis='both', which='minor', labelsize=32)
         ax.set_ylabel(self.ylabel, fontsize=32)
-        ax.set_ylim(0, )
+        ax.set_ylim(0, 100)
         ax.set_xlabel(subtitle, fontsize=30)
-        #ax.legend(handles=[ax1, ax2], labels=['covid', 'non-covid'], loc="upper right", fontsize=22)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
         ax.set_xticklabels(rack_nodes.keys(), fontsize=32)
 
@@ -407,22 +406,17 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=32)
-        ax.set_ylim(0, )
+        ax.set_ylim(0, 100)
         ax.tick_params(axis='both', which='major', labelsize=32)
         ax.tick_params(axis='both', which='minor', labelsize=32)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
         ax.set_xlabel(subtitle, fontsize=30)
 
-        #skyblue_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
-        #moccasin_path =  mpatches.Patch(color='steelblue', label='non-covid (right)')
-        #ax.legend(handles=[skyblue_patch, moccasin_path], loc="upper right", fontsize=22)
-
         # Depcit the values that exceed 100 load
-        #for index, val in enumerate(rack_values):
-            #max_val = np.amax(val)
-            #if max_val > 100:
-                #ax.text(x=index-0.17, y=101.5, s=str(int(max_val)), fontsize=20, color="black", va="center")
-            #ax.text(x=index, y=99, s="some shit", fontsize=14, color="black", va="center")
+        for index, val in enumerate(rack_values):
+            max_val = np.amax(val)
+            if max_val > 100:
+                ax.text(x=index-0.2, y=102.2, s=str(int(max_val)), fontsize=22, color="black", va="center")
 
         ax.set_xticklabels(
             rack_names,
