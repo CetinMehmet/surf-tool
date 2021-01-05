@@ -376,17 +376,18 @@ class GenerateDefaultGraph:
 
             ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
             ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
-            if arr_covid.std() > 100:
-                ax.text(x=index - w/2, y=102.2, s=str(round(arr_covid.std(), 1)), fontsize=22, color="black", va="center")
-            if arr_non_covid.std() > 100:
-                ax.text(x=index + w/2, y=102.2, s=str(round(arr_non_covid.std(), 1)), fontsize=22, color="black", va="center")
+            #if arr_covid.std() > 100:
+                #ax.text(x=index - w/2, y=102.2, s=str(round(arr_covid.std(), 1)), fontsize=22, color="black", va="center")
+            #if arr_non_covid.std() > 100:
+                #ax.text(x=index + w/2, y=102.2, s=str(round(arr_non_covid.std(), 1)), fontsize=22, color="black", va="center")
                 
             index += 1
 
         ax.tick_params(axis='both', which='major', labelsize=32)
         ax.tick_params(axis='both', which='minor', labelsize=32)
         ax.set_ylabel(self.ylabel, fontsize=32)
-        ax.set_ylim(0, 100)
+        #ax.set_ylim(0, 100)
+        ax.set_ylim(0, )
         ax.set_xlabel(subtitle, fontsize=30)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
         ax.set_xticklabels(rack_nodes.keys(), fontsize=32)
@@ -406,17 +407,18 @@ class GenerateDefaultGraph:
             
         sns.violinplot(data=rack_values, ax=ax, cut=0, width=violin_width, palette=['lightcoral', 'steelblue'] * (int(len(rack_values)/2)))
         ax.set_ylabel(self.ylabel, fontsize=32)
-        ax.set_ylim(0, 100)
+        #ax.set_ylim(0, 100)
+        ax.set_ylim(0, )
         ax.tick_params(axis='both', which='major', labelsize=32)
         ax.tick_params(axis='both', which='minor', labelsize=32)
         ax.set_xticks([i + 0.5 for i in range(0, len(rack_values), 2)])
         ax.set_xlabel(subtitle, fontsize=30)
 
         # Depcit the values that exceed 100 load
-        for index, val in enumerate(rack_values):
-            max_val = np.amax(val)
-            if max_val > 100:
-                ax.text(x=index-0.2, y=102.2, s=str(int(max_val)), fontsize=22, color="black", va="center")
+        #for index, val in enumerate(rack_values):
+            #max_val = np.amax(val)
+            #if max_val > 100:
+                #ax.text(x=index-0.2, y=102.2, s=str(int(max_val)), fontsize=22, color="black", va="center")
 
         ax.set_xticklabels(
             rack_names,

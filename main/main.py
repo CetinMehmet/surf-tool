@@ -63,17 +63,17 @@ def main():
     print("Please wait, as we are analyzing %s..." % metric_name)
     if custom_analysis: 
         print("Custom analysis: ")
-        metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).entire_period_analysis()
-        metric.custom(metric1, second_parquet=metric2, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
-        metric.custom(metric1, second_parquet=metric2, nodes=nodes, period=period, racks=racks).daily_seasonal_diurnal_pattern()
-        # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, racks=racks, period=period).all_analysis()
+        #metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).entire_period_analysis()
+        #metric.custom(metric1, second_parquet=metric2, nodes=nodes, period=period, racks=racks).hourly_seasonal_diurnal_pattern()
+        #metric.custom(metric1, second_parquet=metric2, nodes=nodes, period=period, racks=racks).daily_seasonal_diurnal_pattern()
+        metric.custom(metric_parquet, second_parquet=metric2, nodes=nodes, racks=racks, period=period).all_analysis()
         # metric.custom(metric_parquet, second_parquet=None, nodes=nodes, period=period, racks=racks).cdf()
        # metric.custom(metric1, second_parquet=metric2, nodes=nodes, racks=racks, period=period).all_analysis()
     # Default covid vs non-covid analysis
     else: 
         print("Default analysis (covid vs non-covid): ")
-        metric.default(metric1, second_parquet=metric2).rack_analysis()
-        #metric.default(metric1, second_parquet=metric2).daily_seasonal_diurnal_pattern()
+        #metric.default(metric1, second_parquet=metric2).rack_analysis()
+        metric.default(metric1, second_parquet=metric2).all_analysis()
         #metric.default(metric1, second_parquet=metric2).hourly_seasonal_diurnal_pattern()
     
     print("Done!")
