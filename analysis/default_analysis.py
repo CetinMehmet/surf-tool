@@ -43,6 +43,7 @@ class DefaultAnalysis(object):
                 exit(1)
 
         self.df_cpu, self.df_gpu = ParseMetric().cpu_gpu(df)
+        self.df_covid, self.df_non_covid = ParseMetric().covid_non_covid(df)
 
         # Split to df according to covid non covid
         self.df_cpu_covid, self.df_cpu_non_covid = ParseMetric().covid_non_covid(self.df_cpu)
@@ -120,10 +121,10 @@ class DefaultAnalysis(object):
             }
         )
 
-    def rack_analysis_barplot(self):
+    def rack_analysis_barplots(self):
         GenerateDefaultGraph( 
             ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis"
-        ).rack_analysis_barplot(
+        ).rack_analysis_barplots(
             df_cpu_dic={
                 'covid': self.df_cpu_covid,
                 'non_covid': self.df_cpu_non_covid,
@@ -131,6 +132,16 @@ class DefaultAnalysis(object):
             df_gpu_dic={
                 'covid': self.df_gpu_covid, 
                 'non_covid': self.df_gpu_non_covid
+            }
+        )
+
+    def rack_analysis_barplot(self):
+        GenerateDefaultGraph( 
+            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis_barpot"
+        ).rack_analysis_barplots(
+            df_dic={
+                'covid': self.df_covid,
+                'non_covid': self.df_non_covid,
             }
         )
 

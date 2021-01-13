@@ -236,7 +236,26 @@ class GenerateDefaultGraph:
         # Depict legend on top of the first plot
         lightcoral_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
         steelblue_patch =  mpatches.Patch(color='steelblue', label='non-covid (right)')
-        ax_cpu.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.17), fontsize=28, ncol=2)
+        ax_cpu.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.17), fontsize=18, ncol=2)
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
+        if SHOW_PLOT: 
+            plt.show()
+        plt.pause(0.0001)
+
+    def rack_analysis_barplot(self, df_dic):
+
+        _, (ax) = plt.subplots(1, 1, figsize=(11, 5), constrained_layout=True)
+        self.__axes_rack_barplot(
+            ax=ax, 
+            df_covid=df_dic["covid"], 
+            df_non_covid=df_dic["non_covid"],
+            subtitle= "Racks")
+
+        # Depict legend on top of the first plot
+        lightcoral_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
+        steelblue_patch =  mpatches.Patch(color='steelblue', label='non-covid (right)')
+        ax.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.17), fontsize=18, ncol=2)
 
         plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
         if SHOW_PLOT: 
@@ -398,8 +417,8 @@ class GenerateDefaultGraph:
             arr_covid = self.__get_custom_values(df_covid[list(columns)])
             arr_non_covid = self.__get_custom_values(df_non_covid[list(columns)])
 
-            ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=5)
-            ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=5)
+            ax1 = ax.bar(x=index - w/2, height=arr_covid.mean(), width=w, yerr=arr_covid.std(), color="lightcoral", capsize=3)
+            ax2 = ax.bar(x=index + w/2, height=arr_non_covid.mean(), width=w, yerr=arr_non_covid.std(), color="steelblue", capsize=3)
             #if arr_covid.std() > 100:
                 #ax.text(x=index - w/2, y=102.2, s=str(round(arr_covid.std(), 1)), fontsize=22, color="black", va="center")
             #if arr_non_covid.std() > 100:
@@ -407,14 +426,15 @@ class GenerateDefaultGraph:
                 
             index += 1
 
-        ax.tick_params(axis='both', which='major', labelsize=32)
-        ax.tick_params(axis='both', which='minor', labelsize=32)
-        ax.set_ylabel(self.ylabel, fontsize=32)
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.tick_params(axis='both', which='minor', labelsize=16)
+        ax.set_ylabel(self.ylabel, fontsize=16)
         #ax.set_ylim(0, 100)
         ax.set_ylim(0, )
-        ax.set_xlabel(subtitle, fontsize=30)
+        ax.set_xlabel(subtitle, fontsize=16)
+        ax.axvline(x=10.5, collor="skyblue", lw=1)
         ax.set_xticks(np.arange(len(rack_nodes.keys())))
-        ax.set_xticklabels(rack_nodes.keys(), fontsize=32)
+        ax.set_xticklabels(rack_nodes.keys(), fontsize=16)
 
     def __axes_rack_violinplot(self, ax, df_covid, df_non_covid, subtitle, xlabel=None):
         rack_nodes = self.__get_rack_nodes(df_covid) # To get the rack nodes
