@@ -218,6 +218,30 @@ class GenerateDefaultGraph:
         if SHOW_PLOT: 
             plt.show()
         plt.pause(0.0001)
+
+    def rack_analysis_barplots(self, df_cpu_dic, df_gpu_dic):
+
+        _, (ax_cpu, ax_gpu) = plt.subplots(2, 1, figsize=(11, 5), constrained_layout=True)
+        self.__axes_rack_barplot(
+            ax=ax_cpu, 
+            df_covid=df_cpu_dic["covid"], 
+            df_non_covid=df_cpu_dic["non_covid"],
+            subtitle= " Generic racks")
+
+        self.__axes_rack_barplot(ax_gpu, 
+            df_covid=df_gpu_dic["covid"], 
+            df_non_covid=df_gpu_dic["non_covid"],
+            subtitle=" ML racks")
+
+        # Depict legend on top of the first plot
+        lightcoral_patch = mpatches.Patch(color='lightcoral', label='covid (left)')
+        steelblue_patch =  mpatches.Patch(color='steelblue', label='non-covid (right)')
+        ax_cpu.legend(handles=[lightcoral_patch, steelblue_patch], loc="center", bbox_to_anchor=(0.5, 1.17), fontsize=28, ncol=2)
+
+        plt.savefig(os.path.join(str(TOOL_PATH) + "/plots/" + self.savefig_title + ".pdf"), dpi=100) 
+        if SHOW_PLOT: 
+            plt.show()
+        plt.pause(0.0001)
     
    
     def scatter_plot(self, title, x, y, savefig_title):

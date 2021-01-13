@@ -120,6 +120,20 @@ class DefaultAnalysis(object):
             }
         )
 
+    def rack_analysis_barplot(self):
+        GenerateDefaultGraph( 
+            ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis"
+        ).rack_analysis_barplot(
+            df_cpu_dic={
+                'covid': self.df_cpu_covid,
+                'non_covid': self.df_cpu_non_covid,
+            },
+            df_gpu_dic={
+                'covid': self.df_gpu_covid, 
+                'non_covid': self.df_gpu_non_covid
+            }
+        )
+
     def entire_period_analysis(self):
         GenerateDefaultGraph(
             ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "entire_period"
