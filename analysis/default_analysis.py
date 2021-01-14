@@ -138,7 +138,7 @@ class DefaultAnalysis(object):
     def rack_analysis_barplot(self):
         GenerateDefaultGraph( 
             ylabel=self.ylabel, title=self.title, savefig_title=self.savefig_title + "rack_analysis_barpot"
-        ).rack_analysis_barplots(
+        ).rack_analysis_barplot(
             df_dic={
                 'covid': self.df_covid,
                 'non_covid': self.df_non_covid,
